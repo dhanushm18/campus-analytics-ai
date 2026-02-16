@@ -1,0 +1,11 @@
+ {
+    "company_id": 1,
+    "name": "Accenture plc",
+    "short_name": "Accenture",
+    "logo_url": "https://www.accenture.com/_acnmedia/Accenture/Dev/RedesigNAcc_Logo_Black.svg",
+    "category": "Enterprise",
+    "operating_countries": "United States; United Kingdom; India; Germany; France; Japan; Australia; Canada; Brazil; Singapore",
+    "office_locations": "New York, United States; London, United Kingdom; Bangalore, India; Paris, France; Tokyo, Japan; Toronto, Canada; Sydney, Australia; Frankfurt, Germany",
+    "employee_size": "740,000 employees",
+    "yoy_growth_rate": "3%"
+  }

@@ -1,0 +1,600 @@
+{
+  "innovx_master": {
+    "company_name": "Accenture plc",
+    "industry": "Professional Services & Technology Consulting",
+    "sub_industry": "Digital Transformation, IT Services, Strategy & Operations, Managed Services",
+    "core_business_model": "Consulting-led services with recurring managed services, platform engineering, and technology transformation programs",
+    "target_market": "B2B",
+    "geographic_focus": "Global (North America, Europe, APAC, LATAM)"
+  },
+  "industry_trends": [
+    {
+      "trend_name": "Generative AI at Enterprise Scale",
+      "trend_description": "Enterprises are moving from GenAI pilots to production-grade, governed deployments embedded in core business processes.",
+      "time_horizon_years": 3,
+      "trend_drivers": [
+        "LLM maturity",
+        "Productivity pressure",
+        "Executive AI mandates"
+      ],
+      "impact_areas": [
+        "Consulting delivery",
+        "Operations",
+        "Customer experience"
+      ],
+      "strategic_importance": "Critical"
+    },
+    {
+      "trend_name": "Industry-Specific Digital Platforms",
+      "trend_description": "Clients demand verticalized solutions rather than generic digital transformations.",
+      "time_horizon_years": 4,
+      "trend_drivers": [
+        "Complex regulation",
+        "Domain specialization"
+      ],
+      "impact_areas": [
+        "Banking",
+        "Healthcare",
+        "Manufacturing",
+        "Public Sector"
+      ],
+      "strategic_importance": "High"
+    },
+    {
+      "trend_name": "Composable Enterprise & Cloud-Native Modernization",
+      "trend_description": "Large enterprises are modernizing legacy estates using modular, API-first, cloud-native architectures.",
+      "time_horizon_years": 5,
+      "trend_drivers": [
+        "Legacy risk",
+        "Cloud economics",
+        "Speed to market"
+      ],
+      "impact_areas": [
+        "Core IT",
+        "Enterprise architecture"
+      ],
+      "strategic_importance": "Critical"
+    },
+    {
+      "trend_name": "Managed Services + Outcome-Based Pricing",
+      "trend_description": "Clients prefer long-term managed services with shared accountability and outcome-linked pricing models.",
+      "time_horizon_years": 3,
+      "trend_drivers": [
+        "Cost optimization",
+        "Talent shortages"
+      ],
+      "impact_areas": [
+        "IT operations",
+        "Business process outsourcing"
+      ],
+      "strategic_importance": "High"
+    },
+    {
+      "trend_name": "Responsible AI & Regulatory Tech",
+      "trend_description": "AI governance, explainability, and regulatory compliance are becoming mandatory for enterprise adoption.",
+      "time_horizon_years": 3,
+      "trend_drivers": [
+        "AI regulation",
+        "Reputational risk"
+      ],
+      "impact_areas": [
+        "AI programs",
+        "Compliance"
+      ],
+      "strategic_importance": "High"
+    },
+    {
+      "trend_name": "Digital Workforce & Automation",
+      "trend_description": "Enterprises combine human talent with AI agents and automation to redesign work.",
+      "time_horizon_years": 4,
+      "trend_drivers": [
+        "Productivity gaps",
+        "Demographic shifts"
+      ],
+      "impact_areas": [
+        "HR",
+        "Operations",
+        "Shared services"
+      ],
+      "strategic_importance": "Medium"
+    }
+  ],
+  "innovation_roadmap": [
+    {
+      "innovation_theme": "Enterprise GenAI Transformation",
+      "problem_statement": "Clients struggle to move GenAI from experiments to governed, value-generating deployments.",
+      "target_customer": "CXOs and enterprise transformation leaders",
+      "innovation_type": "Platform",
+      "time_horizon": "Now",
+      "expected_outcome": "Faster ROI from GenAI with reduced risk",
+      "required_capabilities": [
+        "LLM engineering",
+        "AI governance",
+        "Change management"
+      ],
+      "dependent_trend_names": [
+        "Generative AI at Enterprise Scale",
+        "Responsible AI & Regulatory Tech"
+      ]
+    },
+    {
+      "innovation_theme": "Industry Digital Operating Models",
+      "problem_statement": "Horizontal transformations fail to deliver industry-specific value.",
+      "target_customer": "Industry leaders (BFSI, Health, Energy, Public Sector)",
+      "innovation_type": "Product",
+      "time_horizon": "Next",
+      "expected_outcome": "Higher transformation success rates",
+      "required_capabilities": [
+        "Industry expertise",
+        "Platform engineering"
+      ],
+      "dependent_trend_names": [
+        "Industry-Specific Digital Platforms"
+      ]
+    },
+    {
+      "innovation_theme": "Autonomous Managed Services",
+      "problem_statement": "Traditional managed services are labor-heavy and margin-constrained.",
+      "target_customer": "Large enterprises",
+      "innovation_type": "Process",
+      "time_horizon": "Future",
+      "expected_outcome": "AI-driven, self-optimizing operations",
+      "required_capabilities": [
+        "AIOps",
+        "Automation",
+        "Outcome-based pricing"
+      ],
+      "dependent_trend_names": [
+        "Managed Services + Outcome-Based Pricing",
+        "Digital Workforce & Automation"
+      ]
+    }
+  ],
+  "competitive_landscape": [
+    {
+      "competitor_name": "IBM Consulting",
+      "competitor_type": "Direct",
+      "core_strength": "Hybrid cloud and enterprise AI",
+      "market_positioning": "Technology-led consulting",
+      "bet_name": "Watsonx Consulting Stack",
+      "bet_description": "Embedding IBM AI platforms into consulting-led transformations",
+      "innovation_category": "AI",
+      "futuristic_level": "Advanced",
+      "strategic_objective": "Own enterprise AI modernization",
+      "threat_level": "High"
+    },
+    {
+      "competitor_name": "Deloitte",
+      "competitor_type": "Direct",
+      "core_strength": "C-suite relationships and industry depth",
+      "market_positioning": "Strategy-led digital transformation",
+      "bet_name": "Industry Cloud Accelerators",
+      "bet_description": "Pre-built industry solutions on hyperscalers",
+      "innovation_category": "Platform",
+      "futuristic_level": "Advanced",
+      "strategic_objective": "Speed up transformation delivery",
+      "threat_level": "High"
+    },
+    {
+      "competitor_name": "Capgemini",
+      "competitor_type": "Direct",
+      "core_strength": "Engineering and managed services",
+      "market_positioning": "Cost-effective digital engineering",
+      "bet_name": "AI-Augmented Delivery",
+      "bet_description": "Using AI to optimize delivery and operations",
+      "innovation_category": "Automation",
+      "futuristic_level": "Advanced",
+      "strategic_objective": "Improve margins and scale",
+      "threat_level": "Medium"
+    },
+    {
+      "competitor_name": "Hyperscalers (AWS, Microsoft, Google)",
+      "competitor_type": "Indirect",
+      "core_strength": "Cloud and AI platforms",
+      "market_positioning": "Platform providers moving up the value chain",
+      "bet_name": "Direct Enterprise Transformation Services",
+      "bet_description": "Offering consulting-like services bundled with platforms",
+      "innovation_category": "Platform",
+      "futuristic_level": "Disruptive",
+      "strategic_objective": "Disintermediate traditional consultancies",
+      "threat_level": "High"
+    }
+  ],
+  "strategic_pillars": [
+    {
+      "cto_vision_statement": "Make Accenture the trusted orchestrator of enterprise GenAI at scale.",
+      "pillar_name": "GenAI at Scale",
+      "pillar_description": "Deliver governed, repeatable GenAI solutions across industries.",
+      "focus_area": "Growth",
+      "key_technologies": [
+        "LLMs",
+        "Prompt engineering",
+        "AI governance frameworks"
+      ],
+      "strategic_risks": "Rapid commoditization of AI skills",
+      "strategic_assumptions": "Clients prefer trusted integrators for AI"
+    },
+    {
+      "cto_vision_statement": "Win through industry depth and reusable platforms.",
+      "pillar_name": "Industry Platform Leadership",
+      "pillar_description": "Vertical platforms that encode best practices.",
+      "focus_area": "Disruption",
+      "key_technologies": [
+        "Microservices",
+        "Industry data models"
+      ],
+      "strategic_risks": "Platform fragmentation",
+      "strategic_assumptions": "Industry specificity drives stickiness"
+    },
+    {
+      "cto_vision_statement": "Transform delivery with automation and AI.",
+      "pillar_name": "Autonomous Delivery & Ops",
+      "pillar_description": "AI-driven consulting delivery and managed services.",
+      "focus_area": "Efficiency",
+      "key_technologies": [
+        "AIOps",
+        "RPA",
+        "Process mining"
+      ],
+      "strategic_risks": "Cultural resistance",
+      "strategic_assumptions": "Automation improves margins sustainably"
+    },
+    {
+      "cto_vision_statement": "Lead the market in responsible digital transformation.",
+      "pillar_name": "Trust, Security & Responsible AI",
+      "pillar_description": "Compliance-first, ethical AI and secure transformations.",
+      "focus_area": "Defense",
+      "key_technologies": [
+        "Explainable AI",
+        "Zero trust security"
+      ],
+      "strategic_risks": "Regulatory uncertainty",
+      "strategic_assumptions": "Trust is a competitive differentiator"
+    }
+  ],
+  "innovx_projects": [
+    {
+      "project_name": "Accenture GenAI Factory",
+      "problem_statement": "Clients cannot industrialize GenAI use cases quickly.",
+      "target_users": "Enterprise transformation teams",
+      "innovation_objective": "Rapid GenAI deployment at scale",
+      "tier_level": "Tier 1",
+      "differentiation_factor": "Reusable, governed AI blueprints",
+      "aligned_pillar_names": [
+        "GenAI at Scale"
+      ],
+      "architecture_style": "Platform-based microservices",
+      "backend_technologies": [
+        "Python",
+        "FastAPI"
+      ],
+      "frontend_technologies": [
+        "React"
+      ],
+      "ai_ml_technologies": [
+        "OpenAI APIs",
+        "Azure OpenAI",
+        "LangChain"
+      ],
+      "data_storage_processing": "Cloud data lakehouse (Delta Lake)",
+      "integrations_apis": [
+        "Enterprise systems APIs"
+      ],
+      "infrastructure_cloud": "Multi-cloud",
+      "security_compliance": "ISO 27001, SOC2",
+      "primary_use_case": "Enterprise GenAI deployment",
+      "secondary_use_cases": [
+        "AI use case governance"
+      ],
+      "scenario_description": "Clients launch multiple GenAI apps using factory templates.",
+      "user_journey_summary": "Ideate → Build → Govern → Scale",
+      "business_value": "Faster AI ROI",
+      "success_metrics": [
+        "Time-to-production",
+        "GenAI adoption rate"
+      ]
+    },
+    {
+      "project_name": "Industry Cloud Accelerators",
+      "problem_statement": "Industry transformations take too long.",
+      "target_users": "Industry-specific enterprises",
+      "innovation_objective": "Speed up digital transformation",
+      "tier_level": "Tier 1",
+      "differentiation_factor": "Pre-built industry workflows",
+      "aligned_pillar_names": [
+        "Industry Platform Leadership"
+      ],
+      "architecture_style": "Composable microservices",
+      "backend_technologies": [
+        "Java",
+        "Spring Boot"
+      ],
+      "frontend_technologies": [
+        "Angular"
+      ],
+      "ai_ml_technologies": [
+        "Industry ML models"
+      ],
+      "data_storage_processing": "Industry data models",
+      "integrations_apis": [
+        "SAP, Oracle APIs"
+      ],
+      "infrastructure_cloud": "Hybrid cloud",
+      "security_compliance": "Industry regulations",
+      "primary_use_case": "Industry transformation",
+      "secondary_use_cases": [
+        "Process optimization"
+      ],
+      "scenario_description": "Clients deploy industry-ready platforms.",
+      "user_journey_summary": "Select → Customize → Deploy",
+      "business_value": "Higher transformation success",
+      "success_metrics": [
+        "Deployment time"
+      ]
+    },
+    {
+      "project_name": "Autonomous Managed Services Platform",
+      "problem_statement": "Managed services are labor-intensive.",
+      "target_users": "Enterprise operations leaders",
+      "innovation_objective": "AI-driven operations",
+      "tier_level": "Tier 2",
+      "differentiation_factor": "Self-healing operations",
+      "aligned_pillar_names": [
+        "Autonomous Delivery & Ops"
+      ],
+      "architecture_style": "Event-driven",
+      "backend_technologies": [
+        "Python",
+        "Kafka"
+      ],
+      "frontend_technologies": [
+        "Ops dashboards"
+      ],
+      "ai_ml_technologies": [
+        "Anomaly detection",
+        "AIOps"
+      ],
+      "data_storage_processing": "Operational data lake",
+      "integrations_apis": [
+        "ITSM tools"
+      ],
+      "infrastructure_cloud": "Hybrid cloud",
+      "security_compliance": "SOC2",
+      "primary_use_case": "IT operations automation",
+      "secondary_use_cases": [
+        "Cost optimization"
+      ],
+      "scenario_description": "Systems self-detect and resolve issues.",
+      "user_journey_summary": "Monitor → Auto-fix → Report",
+      "business_value": "Margin improvement",
+      "success_metrics": [
+        "MTTR reduction"
+      ]
+    },
+    {
+      "project_name": "AI-Powered Change Management",
+      "problem_statement": "Transformation adoption fails due to poor change management.",
+      "target_users": "HR and transformation leaders",
+      "innovation_objective": "Increase adoption of change",
+      "tier_level": "Tier 1",
+      "differentiation_factor": "Behavioral AI insights",
+      "aligned_pillar_names": [
+        "GenAI at Scale"
+      ],
+      "architecture_style": "Analytics platform",
+      "backend_technologies": [
+        "Python"
+      ],
+      "frontend_technologies": [
+        "Web dashboards"
+      ],
+      "ai_ml_technologies": [
+        "NLP sentiment models"
+      ],
+      "data_storage_processing": "Employee data lake",
+      "integrations_apis": [
+        "HR systems"
+      ],
+      "infrastructure_cloud": "Cloud",
+      "security_compliance": "GDPR",
+      "primary_use_case": "Change adoption tracking",
+      "secondary_use_cases": [
+        "Training personalization"
+      ],
+      "scenario_description": "AI monitors and nudges adoption.",
+      "user_journey_summary": "Measure → Predict → Intervene",
+      "business_value": "Higher transformation success",
+      "success_metrics": [
+        "Adoption rate"
+      ]
+    },
+    {
+      "project_name": "Enterprise Data Modernization Factory",
+      "problem_statement": "Data modernization is slow and risky.",
+      "target_users": "CIOs and data leaders",
+      "innovation_objective": "Accelerate data platform modernization",
+      "tier_level": "Tier 2",
+      "differentiation_factor": "Automated migration blueprints",
+      "aligned_pillar_names": [
+        "Industry Platform Leadership"
+      ],
+      "architecture_style": "Data mesh",
+      "backend_technologies": [
+        "Spark",
+        "Kafka"
+      ],
+      "frontend_technologies": [
+        "Data catalog UI"
+      ],
+      "ai_ml_technologies": [
+        "Metadata ML"
+      ],
+      "data_storage_processing": "Lakehouse",
+      "integrations_apis": [
+        "Legacy systems"
+      ],
+      "infrastructure_cloud": "Multi-cloud",
+      "security_compliance": "SOC2",
+      "primary_use_case": "Data modernization",
+      "secondary_use_cases": [
+        "AI readiness"
+      ],
+      "scenario_description": "Clients modernize data faster.",
+      "user_journey_summary": "Assess → Migrate → Optimize",
+      "business_value": "Reduced program risk",
+      "success_metrics": [
+        "Migration time"
+      ]
+    },
+    {
+      "project_name": "Responsible AI Governance Suite",
+      "problem_statement": "AI programs lack governance.",
+      "target_users": "Risk and compliance teams",
+      "innovation_objective": "Ensure ethical AI usage",
+      "tier_level": "Tier 1",
+      "differentiation_factor": "Built-in regulatory mapping",
+      "aligned_pillar_names": [
+        "Trust, Security & Responsible AI"
+      ],
+      "architecture_style": "Governance platform",
+      "backend_technologies": [
+        "Java"
+      ],
+      "frontend_technologies": [
+        "Compliance dashboards"
+      ],
+      "ai_ml_technologies": [
+        "Explainability tools"
+      ],
+      "data_storage_processing": "Policy repositories",
+      "integrations_apis": [
+        "AI platforms"
+      ],
+      "infrastructure_cloud": "Hybrid",
+      "security_compliance": "EU AI Act readiness",
+      "primary_use_case": "AI governance",
+      "secondary_use_cases": [
+        "Audit readiness"
+      ],
+      "scenario_description": "Organizations govern AI centrally.",
+      "user_journey_summary": "Register → Monitor → Audit",
+      "business_value": "Reduced regulatory risk",
+      "success_metrics": [
+        "Compliance coverage"
+      ]
+    },
+    {
+      "project_name": "Digital Workforce Orchestrator",
+      "problem_statement": "Human and digital workers are poorly coordinated.",
+      "target_users": "Operations leaders",
+      "innovation_objective": "Optimize hybrid workforce",
+      "tier_level": "Tier 2",
+      "differentiation_factor": "Unified human+AI orchestration",
+      "aligned_pillar_names": [
+        "Autonomous Delivery & Ops"
+      ],
+      "architecture_style": "Workflow orchestration",
+      "backend_technologies": [
+        "Node.js"
+      ],
+      "frontend_technologies": [
+        "Operations UI"
+      ],
+      "ai_ml_technologies": [
+        "Optimization models"
+      ],
+      "data_storage_processing": "Workflow databases",
+      "integrations_apis": [
+        "RPA tools"
+      ],
+      "infrastructure_cloud": "Cloud",
+      "security_compliance": "SOC2",
+      "primary_use_case": "Workforce optimization",
+      "secondary_use_cases": [
+        "Capacity planning"
+      ],
+      "scenario_description": "AI allocates work dynamically.",
+      "user_journey_summary": "Plan → Execute → Optimize",
+      "business_value": "Productivity gains",
+      "success_metrics": [
+        "Throughput increase"
+      ]
+    },
+    {
+      "project_name": "C-Suite Digital Twin",
+      "problem_statement": "Executives lack visibility into transformation impact.",
+      "target_users": "Executive leadership",
+      "innovation_objective": "Simulate enterprise decisions",
+      "tier_level": "Tier 3",
+      "differentiation_factor": "End-to-end enterprise modeling",
+      "aligned_pillar_names": [
+        "Industry Platform Leadership"
+      ],
+      "architecture_style": "Simulation platform",
+      "backend_technologies": [
+        "Python",
+        "Graph databases"
+      ],
+      "frontend_technologies": [
+        "Advanced visualization UI"
+      ],
+      "ai_ml_technologies": [
+        "System dynamics models"
+      ],
+      "data_storage_processing": "Enterprise data warehouse",
+      "integrations_apis": [
+        "ERP, CRM systems"
+      ],
+      "infrastructure_cloud": "Hybrid",
+      "security_compliance": "SOC2",
+      "primary_use_case": "Strategic planning",
+      "secondary_use_cases": [
+        "Risk simulation"
+      ],
+      "scenario_description": "Executives test strategies virtually.",
+      "user_journey_summary": "Model → Simulate → Decide",
+      "business_value": "Better strategic outcomes",
+      "success_metrics": [
+        "Decision accuracy"
+      ]
+    },
+    {
+      "project_name": "Accenture Platform Marketplace",
+      "problem_statement": "Clients want reusable digital assets.",
+      "target_users": "Enterprise IT teams",
+      "innovation_objective": "Monetize reusable IP",
+      "tier_level": "Tier 3",
+      "differentiation_factor": "Consulting-grade platforms",
+      "aligned_pillar_names": [
+        "GenAI at Scale"
+      ],
+      "architecture_style": "Marketplace platform",
+      "backend_technologies": [
+        "Java",
+        "API Gateway"
+      ],
+      "frontend_technologies": [
+        "Marketplace UI"
+      ],
+      "ai_ml_technologies": [
+        "Recommendation engines"
+      ],
+      "data_storage_processing": "Product catalog DB",
+      "integrations_apis": [
+        "Partner systems"
+      ],
+      "infrastructure_cloud": "Multi-cloud",
+      "security_compliance": "SOC2",
+      "primary_use_case": "Platform distribution",
+      "secondary_use_cases": [
+        "Partner ecosystem"
+      ],
+      "scenario_description": "Clients purchase and deploy platforms.",
+      "user_journey_summary": "Browse → Deploy → Scale",
+      "business_value": "New IP-driven revenue",
+      "success_metrics": [
+        "Marketplace revenue"
+      ]
+    }
+  ]
+}

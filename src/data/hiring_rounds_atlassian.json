@@ -1,0 +1,156 @@
+{
+"company_name": "Atlassian Corporation",
+"job_role_details": [
+{
+"opportunity_type": "Employment",
+"role_title": "Software Engineer (Product Engineering)",
+"role_category": "SDE",
+"job_description": "Build and scale cloud-first products like Jira, Confluence, and Bitbucket. Responsibilities include designing backend services, writing high-quality code, participating in design reviews, improving system reliability, and collaborating with cross-functional teams in an Agile environment.",
+"compensation": "CTC",
+"ctc_or_stipend": 3800000,
+"bonus": "Joining bonus, annual performance bonus, RSUs",
+"benefits_summary": "Comprehensive health insurance, flexible work policy, paid parental leave, wellness allowance, stock options",
+"hiring_rounds": [
+{
+"round_number": 1,
+"round_name": "Online Coding Assessment",
+"round_category": "Coding Test",
+"evaluation_type": "Technical",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "DSA",
+"typical_questions": "Find the longest consecutive sequence in an array; Detect a cycle in a linked list; Solve a dynamic programming problem on strings"
+},
+{
+"skill_set_code": "COD",
+"typical_questions": "Implement rate limiter logic; Write code to validate parentheses; Process input to simulate task scheduling"
+},
+{
+"skill_set_code": "APTI",
+"typical_questions": "Logical reasoning based on constraints; Basic probability puzzle; Analytical question on efficiency"
+}
+]
+},
+{
+"round_number": 2,
+"round_name": "Technical Interview Round 1",
+"round_category": "Interview",
+"evaluation_type": "Technical",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "DSA",
+"typical_questions": "Explain time complexity trade-offs; Solve a graph traversal problem; Implement binary tree level order traversal"
+},
+{
+"skill_set_code": "OS",
+"typical_questions": "Explain multithreading and concurrency issues; What is deadlock; Difference between process and thread"
+},
+{
+"skill_set_code": "NETW",
+"typical_questions": "Basics of HTTP and REST APIs; What happens when an API request fails; Explain latency vs throughput"
+}
+]
+},
+{
+"round_number": 3,
+"round_name": "System Design & Architecture",
+"round_category": "Interview",
+"evaluation_type": "Technical",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "SYSD",
+"typical_questions": "Design a collaborative document editing system; Design a task tracking system like Jira; How would you handle scaling and fault tolerance"
+},
+{
+"skill_set_code": "OOD",
+"typical_questions": "Design an object-oriented notification system; Explain design patterns you have used; How do you ensure modularity"
+},
+{
+"skill_set_code": "SWE",
+"typical_questions": "What is code maintainability; How do you approach refactoring; Explain CI/CD practices"
+}
+]
+},
+{
+"round_number": 4,
+"round_name": "Values & Culture Interview",
+"round_category": "Interview",
+"evaluation_type": "HR",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "COMM",
+"typical_questions": "Describe a time you received critical feedback; How do you work in distributed teams; Why Atlassian and its values resonate with you"
+}
+]
+}
+]
+},
+{
+"opportunity_type": "Employment",
+"role_title": "Frontend Engineer",
+"role_category": "Frontend_Developer",
+"job_description": "Develop intuitive, high-performance user interfaces for Atlassian products using modern frontend frameworks. Work closely with designers and backend engineers to deliver accessible, scalable, and responsive web experiences.",
+"compensation": "CTC",
+"ctc_or_stipend": 3400000,
+"bonus": "Annual performance bonus and stock grants",
+"benefits_summary": "Health insurance, remote work flexibility, learning budget, wellness programs, RSUs",
+"hiring_rounds": [
+{
+"round_number": 1,
+"round_name": "Frontend Coding Test",
+"round_category": "Coding Test",
+"evaluation_type": "Technical",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "COD",
+"typical_questions": "Implement a responsive dashboard layout; Write JavaScript to debounce a function; Manipulate DOM elements efficiently"
+},
+{
+"skill_set_code": "DSA",
+"typical_questions": "Optimize array and string operations; Explain space-time tradeoffs; Implement a simple caching mechanism"
+}
+]
+},
+{
+"round_number": 2,
+"round_name": "Frontend Technical Interview",
+"round_category": "Interview",
+"evaluation_type": "Technical",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "OOD",
+"typical_questions": "Component-based design principles; How would you design a reusable UI library; Explain state management approaches"
+},
+{
+"skill_set_code": "SWE",
+"typical_questions": "How do you ensure accessibility; Performance optimization techniques; Testing strategies for frontend applications"
+},
+{
+"skill_set_code": "COMM",
+"typical_questions": "Explain a complex UI feature you built; Collaborating with designers; Handling user feedback"
+}
+]
+},
+{
+"round_number": 3,
+"round_name": "HR & Culture Fit",
+"round_category": "Interview",
+"evaluation_type": "HR",
+"assessment_mode": "Online",
+"skill_sets": [
+{
+"skill_set_code": "COMM",
+"typical_questions": "Why Atlassian; How do you align with Atlassian values; Long-term career aspirations"
+}
+]
+}
+]
+}
+]
+}

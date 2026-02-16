@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    --primary: 220 60% 30%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 10%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 170 55% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 60% 30%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 220 20% 98%;
+    --sidebar-foreground: 220 15% 30%;
+    --sidebar-primary: 220 60% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 170 55% 95%;
+    --sidebar-accent-foreground: 170 55% 25%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 220 60% 30%;
+
+    /* Custom tokens */
+    --chart-1: 220 60% 30%;
+    --chart-2: 170 55% 40%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 340 65% 55%;
+    --chart-5: 260 50% 55%;
+
+    --metric: 220 60% 18%;
+    --metric-foreground: 0 0% 100%;
+
+    --badge-marquee: 340 65% 50%;
+    --badge-superdream: 260 50% 50%;
+    --badge-dream: 170 55% 40%;
+    --badge-regular: 220 10% 50%;
+
+    --tier-1: 170 55% 40%;
+    --tier-2: 220 60% 50%;
+    --tier-3: 260 55% 55%;
+  }
+
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 220 14% 96%;
+    --card: 220 20% 10%;
+    --card-foreground: 220 14% 96%;
+    --popover: 220 20% 10%;
+    --popover-foreground: 220 14% 96%;
+    --primary: 210 50% 60%;
+    --primary-foreground: 220 20% 7%;
+    --secondary: 220 14% 14%;
+    --secondary-foreground: 220 14% 96%;
+    --muted: 220 14% 14%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 170 45% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 210 50% 60%;
+    --sidebar-background: 220 20% 8%;
+    --sidebar-foreground: 220 14% 80%;
+    --sidebar-primary: 210 50% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 14%;
+    --sidebar-accent-foreground: 220 14% 96%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 210 50% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .heading-display {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply text-2xl font-bold tracking-tight text-foreground;
+  }
+  .heading-section {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply text-lg font-semibold tracking-tight text-foreground;
+  }
+  .metric-value {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply text-3xl font-bold tracking-tight;
+  }
+  .label-caption {
+    @apply text-xs font-medium uppercase tracking-wider text-muted-foreground;
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
+}
