@@ -52,20 +52,43 @@ export const companyService = {
 
     /**
      * Fetch a single company by its ID.
+     * Also fetches hiring rounds data from company_hiring_rounds_json table.
      */
     async getCompanyById(companyId: number) {
-        const { data, error } = await supabase
-            .from('company_json')
-            .select('full_json')
-            .eq('company_id', companyId)
-            .single();
+        // Fetch company data and hiring rounds data in parallel
+        const [companyResult, hiringResult] = await Promise.all([
+            supabase
+                .from('company_json')
+                .select('full_json')
+                .eq('company_id', companyId)
+                .single(),
+            supabase
+                .from('company_hiring_rounds_json')
+                .select('hiring_data')
+                .eq('company_id', companyId)
+                .single()
+        ]);
 
-        if (error) {
-            console.error(`Error fetching company ${companyId}:`, error);
-            return { data: null, error };
+        if (companyResult.error) {
+            console.error(`Error fetching company ${companyId}:`, companyResult.error);
+            return { data: null, error: companyResult.error };
         }
 
-        return { data: data?.full_json as CompanyFull, error: null };
+        const companyData = companyResult.data?.full_json as CompanyFull;
+
+        // Merge hiring rounds data if available
+        if (!hiringResult.error && hiringResult.data?.hiring_data) {
+            const hiringData = hiringResult.data.hiring_data as any;
+            console.log('Hiring data from DB:', hiringData);
+            if (hiringData.job_role_details) {
+                companyData.job_role_details = hiringData.job_role_details;
+                console.log('Merged job_role_details:', companyData.job_role_details);
+            }
+        } else if (hiringResult.error) {
+            console.warn(`No hiring data found for company ${companyId}:`, hiringResult.error);
+        }
+
+        return { data: companyData, error: null };
     },
 
     /**

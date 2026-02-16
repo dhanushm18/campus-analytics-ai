@@ -27,6 +27,7 @@ export interface CompanyFull extends Record<string, unknown> {
   nature_of_company: string;
   headquarters_address: string;
   employee_size: string;
+  job_role_details?: JobRole[];
   [key: string]: unknown;
 }
 

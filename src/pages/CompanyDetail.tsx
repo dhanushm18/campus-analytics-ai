@@ -5,7 +5,7 @@ import { CompanyFull } from "@/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Users, Calendar, ExternalLink, BarChart3, GitBranch, Rocket, ArrowLeft } from "lucide-react";
+import { MapPin, Users, Calendar, ExternalLink, BarChart3, GitBranch, Rocket, ArrowLeft, Building2, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/sonner";
 
@@ -16,7 +16,7 @@ const SECTION_MAP: Record<string, { label: string; keys: string[] }> = {
     keys: ["overview_text", "nature_of_company", "category", "focus_sectors", "offerings_description", "core_value_proposition", "vision_statement", "mission_statement", "core_values"],
   },
   business: {
-    label: "Business",
+    label: "Business Metrics",
     keys: ["annual_revenue", "annual_profit", "revenue_mix", "valuation", "yoy_growth_rate", "profitability_status", "market_share_percentage", "tam", "sam", "som"],
   },
   people: {
@@ -24,15 +24,15 @@ const SECTION_MAP: Record<string, { label: string; keys: string[] }> = {
     keys: ["employee_size", "hiring_velocity", "employee_turnover", "avg_retention_tenure", "work_culture_summary", "diversity_metrics", "remote_policy_details", "training_spend", "burnout_risk"],
   },
   technology: {
-    label: "Technology",
+    label: "Technology Stack",
     keys: ["tech_stack", "ai_ml_adoption_level", "cybersecurity_posture", "tech_adoption_rating", "intellectual_property", "r_and_d_investment"],
   },
   competition: {
-    label: "Competition",
+    label: "Market Position",
     keys: ["key_competitors", "competitive_advantages", "unique_differentiators", "weaknesses_gaps", "key_challenges_needs", "benchmark_vs_peers"],
   },
   contact: {
-    label: "Contact & Social",
+    label: "Contact & Links",
     keys: ["website_url", "linkedin_url", "twitter_handle", "ceo_name", "primary_contact_email", "glassdoor_rating"],
   },
 };
@@ -47,31 +47,40 @@ function formatKey(key: string): string {
 }
 
 function RenderValue({ value }: { value: unknown }) {
-  if (value == null || value === "" || value === "NA") return <span className="text-muted-foreground text-xs">—</span>;
-  if (typeof value === "number") return <span className="font-heading font-bold text-lg text-primary">{value.toLocaleString()}</span>;
+  if (value == null || value === "" || value === "NA") return <span className="text-muted-foreground text-sm">—</span>;
+  if (typeof value === "number") return <span className="text-2xl font-semibold text-foreground">{value.toLocaleString()}</span>;
   if (isUrl(value)) return (
-    <a href={value as string} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline inline-flex items-center gap-1">
-      {(value as string).replace(/https?:\/\/(www\.)?/, "").split("/")[0]} <ExternalLink className="h-3 w-3" />
+    <a href={value as string} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:text-primary/80 inline-flex items-center gap-1.5 transition-colors">
+      {(value as string).replace(/https?:\/\/(www\.)?/, "").split("/")[0]} <ExternalLink className="h-3.5 w-3.5" />
     </a>
   );
   const str = String(value);
   if (str.includes(";")) {
     return (
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {str.split(";").map((item, i) => (
-          <Badge key={i} variant="secondary" className="text-xs font-normal">{item.trim()}</Badge>
+          <Badge key={i} variant="secondary" className="text-xs font-normal px-2.5 py-1">{item.trim()}</Badge>
         ))}
       </div>
     );
   }
-  return <span className="text-sm">{str}</span>;
+  return <p className="text-sm text-foreground/90 leading-relaxed">{str}</p>;
 }
+
+const categoryColors: Record<string, string> = {
+  Marquee: "bg-red-500 text-white",
+  SuperDream: "bg-purple-500 text-white",
+  Dream: "bg-teal-500 text-white",
+  Regular: "bg-gray-500 text-white",
+  Enterprise: "bg-orange-500 text-white",
+};
 
 export default function CompanyDetail() {
   const { companyId } = useParams();
   const navigate = useNavigate();
   const [company, setCompany] = useState<CompanyFull | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     async function fetchCompany() {
@@ -90,66 +99,141 @@ export default function CompanyDetail() {
   }, [companyId]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-[50vh]"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading company details...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!company) return <div className="text-center py-20 text-muted-foreground">Company not found</div>;
 
+  const categoryColor = categoryColors[company.category || ""] || "bg-primary text-white";
+
   return (
-    <div className="space-y-6">
-      {/* Sticky header */}
-      <div className="sticky top-14 z-20 -mx-4 lg:-mx-6 px-4 lg:px-6 py-4 bg-background/95 backdrop-blur border-b">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/companies")} className="shrink-0 self-start">
-            <ArrowLeft className="h-4 w-4" />
+    <div className="space-y-0 animate-fade-in">
+      {/* Premium Hero Section */}
+      <div className="relative -mx-6 lg:-mx-10 -mt-6 lg:-mt-10 mb-8">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 gradient-hero" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+
+        {/* Content */}
+        <div className="relative px-6 lg:px-10 pt-8 pb-12">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/companies")}
+            className="mb-6 hover:bg-background/50 transition-smooth"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Companies
           </Button>
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center font-heading font-bold text-xl text-muted-foreground shrink-0">
+
+          {/* Company Header */}
+          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
+            {/* Logo */}
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-semibold text-3xl text-primary shadow-lg">
               {company.short_name.charAt(0)}
             </div>
-            <div className="min-w-0">
-              <h1 className="font-heading font-bold text-lg truncate">{company.name}</h1>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{company.headquarters_address}</span>
-                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />Est. {company.incorporation_year}</span>
-                <span className="flex items-center gap-1"><Users className="h-3 w-3" />{company.employee_size}</span>
+
+            {/* Info */}
+            <div className="flex-1 space-y-4">
+              <div>
+                <h1 className="heading-large mb-2">{company.name}</h1>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4" />
+                    {company.headquarters_address}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4" />
+                    Est. {company.incorporation_year}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Users className="h-4 w-4" />
+                    {company.employee_size}
+                  </span>
+                  <Badge className={`${categoryColor} px-3 py-1`}>
+                    {company.category}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="default"
+                  onClick={() => navigate(`/companies/${companyId}/skills`)}
+                  className="rounded-xl shadow-md hover:shadow-lg transition-smooth"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Skill Analysis
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/companies/${companyId}/process`)}
+                  className="rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-smooth"
+                >
+                  <GitBranch className="h-4 w-4 mr-2" />
+                  Hiring Process
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/companies/${companyId}/innovx`)}
+                  className="rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-smooth"
+                >
+                  <Rocket className="h-4 w-4 mr-2" />
+                  InnovX
+                </Button>
               </div>
             </div>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Button size="sm" variant="outline" onClick={() => navigate(`/companies/${companyId}/skills`)}>
-              <BarChart3 className="h-3.5 w-3.5 mr-1" />Skill Sets
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/companies/${companyId}/process`)}>
-              <GitBranch className="h-3.5 w-3.5 mr-1" />Process
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/companies/${companyId}/innovx`)}>
-              <Rocket className="h-3.5 w-3.5 mr-1" />INNOVX
-            </Button>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="w-full justify-start overflow-x-auto flex-nowrap">
-          {Object.entries(SECTION_MAP).map(([key, section]) => (
-            <TabsTrigger key={key} value={key} className="shrink-0">{section.label}</TabsTrigger>
-          ))}
-        </TabsList>
+      {/* Animated Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="sticky top-16 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 -mx-6 lg:-mx-10 px-6 lg:px-10 mb-8">
+          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0">
+            {Object.entries(SECTION_MAP).map(([key, section]) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className={`
+                  relative px-4 py-3 rounded-none border-b-2 border-transparent
+                  data-[state=active]:border-primary data-[state=active]:text-primary
+                  data-[state=active]:bg-transparent
+                  hover:text-foreground transition-all duration-200
+                  ${activeTab === key ? 'font-semibold' : 'font-medium'}
+                `}
+              >
+                {section.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+
         {Object.entries(SECTION_MAP).map(([sectionKey, section]) => (
-          <TabsContent key={sectionKey} value={sectionKey}>
+          <TabsContent key={sectionKey} value={sectionKey} className="mt-0">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6"
             >
               {section.keys.map(key => {
                 const value = company[key];
                 if (value == null || value === "" || value === "NA") return null;
                 return (
-                  <div key={key} className="rounded-lg border bg-card p-4 space-y-2">
-                    <div className="label-caption">{formatKey(key)}</div>
+                  <div key={key} className="rounded-xl border border-border/50 bg-card p-6 space-y-3 hover:shadow-md transition-shadow duration-250">
+                    <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {formatKey(key)}
+                    </div>
                     <RenderValue value={value} />
                   </div>
                 );
@@ -161,4 +245,3 @@ export default function CompanyDetail() {
     </div>
   );
 }
-

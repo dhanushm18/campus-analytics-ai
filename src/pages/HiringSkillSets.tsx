@@ -4,20 +4,29 @@ import { companyService } from "../services/companyService";
 import { SKILL_SETS } from "@/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/sonner";
-import { Check, X } from "lucide-react";
+import { Search, Grid3x3, Table2, Info } from "lucide-react";
+import { motion } from "framer-motion";
 
 const skillKeys = Object.keys(SKILL_SETS);
 
-function getLevelBadgeColor(level: string) {
+function getProficiencyColor(level: string): string {
   const l = level?.toLowerCase() || "";
-  if (l.includes("advanced") || l.includes("expert")) return "bg-green-100 text-green-800 border-green-200";
-  if (l.includes("interm")) return "bg-blue-100 text-blue-800 border-blue-200";
-  if (l.includes("basic") || l.includes("founda")) return "bg-gray-100 text-gray-800 border-gray-200";
-  return "bg-secondary text-secondary-foreground";
+  if (l.includes("advanced") || l.includes("expert")) return "bg-green-500";
+  if (l.includes("interm")) return "bg-blue-500";
+  if (l.includes("basic") || l.includes("founda")) return "bg-gray-400";
+  return "bg-gray-200";
+}
+
+function getProficiencyIntensity(level: string): string {
+  const l = level?.toLowerCase() || "";
+  if (l.includes("advanced") || l.includes("expert")) return "bg-green-100 hover:bg-green-200 border-green-300";
+  if (l.includes("interm")) return "bg-blue-100 hover:bg-blue-200 border-blue-300";
+  if (l.includes("basic") || l.includes("founda")) return "bg-gray-100 hover:bg-gray-200 border-gray-300";
+  return "bg-gray-50 hover:bg-gray-100 border-gray-200";
 }
 
 interface SkillData {
@@ -36,10 +45,11 @@ interface CompanyWithSkills {
   skills: SkillData[];
 }
 
-export default function CompanySkills() {
+export default function HiringSkillSets() {
   const navigate = useNavigate();
-  const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"heatmap" | "table">("heatmap");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [proficiencyFilter, setProficiencyFilter] = useState<string>("all");
   const [selectedSkills, setSelectedSkills] = useState<string[]>(skillKeys);
   const [companies, setCompanies] = useState<CompanyWithSkills[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,125 +69,310 @@ export default function CompanySkills() {
     fetchCompanies();
   }, []);
 
-  const paged = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    return companies.slice(start, start + rowsPerPage);
-  }, [page, rowsPerPage, companies]);
+  const filteredCompanies = useMemo(() => {
+    return companies.filter(company => {
+      // Search filter
+      if (searchQuery && !company.short_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !company.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
 
-  const totalPages = Math.ceil(companies.length / rowsPerPage);
+      // Proficiency filter
+      if (proficiencyFilter !== "all") {
+        const hasMatchingSkill = company.skills.some(skill => {
+          const level = skill.level_name?.toLowerCase() || "";
+          if (proficiencyFilter === "advanced" && (level.includes("advanced") || level.includes("expert"))) return true;
+          if (proficiencyFilter === "intermediate" && level.includes("interm")) return true;
+          if (proficiencyFilter === "basic" && (level.includes("basic") || level.includes("founda"))) return true;
+          return false;
+        });
+        if (!hasMatchingSkill) return false;
+      }
 
-  const toggleSkill = (key: string) => {
-    setSelectedSkills(prev =>
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+      return true;
+    });
+  }, [companies, searchQuery, proficiencyFilter]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading skills analysis...</p>
+        </div>
+      </div>
     );
-  };
-
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="heading-display">Hiring Skill Sets — Company Comparison</h1>
-        <p className="text-sm text-muted-foreground mt-1">Compare skill requirements across companies based on actual hiring data</p>
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <div className="space-y-3">
+        <h1 className="heading-display">Skills Analysis — Company Requirements Heatmap</h1>
+        <p className="text-muted-foreground text-base max-w-3xl">
+          Visualize and compare skill requirements across companies. Color intensity represents proficiency levels required for campus placements.
+        </p>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Select value={String(rowsPerPage)} onValueChange={v => { setRowsPerPage(Number(v)); setPage(1); }}>
-          <SelectTrigger className="w-[130px] h-9 text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="20">20 per page</SelectItem>
-            <SelectItem value="50">50 per page</SelectItem>
-            <SelectItem value="100">100 per page</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Controls Panel */}
+      <div className="bg-card rounded-2xl border shadow-sm p-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[250px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search companies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10"
+            />
+          </div>
 
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs text-muted-foreground">Columns:</span>
-          <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => setSelectedSkills(skillKeys)}>All</Button>
-          <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => setSelectedSkills([])}>Clear</Button>
-          {skillKeys.map(key => (
-            <label key={key} className="flex items-center gap-1 text-xs cursor-pointer">
-              <Checkbox
-                checked={selectedSkills.includes(key)}
-                onCheckedChange={() => toggleSkill(key)}
-                className="h-3.5 w-3.5"
-              />
-              {key}
-            </label>
-          ))}
+          {/* Proficiency Filter */}
+          <Select value={proficiencyFilter} onValueChange={setProficiencyFilter}>
+            <SelectTrigger className="w-[180px] h-10">
+              <SelectValue placeholder="All Levels" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Proficiency Levels</SelectItem>
+              <SelectItem value="basic">Basic/Foundation</SelectItem>
+              <SelectItem value="intermediate">Intermediate</SelectItem>
+              <SelectItem value="advanced">Advanced/Expert</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* View Toggle */}
+          <div className="flex gap-2 border rounded-lg p-1">
+            <Button
+              size="sm"
+              variant={viewMode === "heatmap" ? "default" : "ghost"}
+              onClick={() => setViewMode("heatmap")}
+              className="h-8 gap-2"
+            >
+              <Grid3x3 className="h-3.5 w-3.5" />
+              Heatmap
+            </Button>
+            <Button
+              size="sm"
+              variant={viewMode === "table" ? "default" : "ghost"}
+              onClick={() => setViewMode("table")}
+              className="h-8 gap-2"
+            >
+              <Table2 className="h-3.5 w-3.5" />
+              Table
+            </Button>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center gap-6 pt-2 border-t">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Info className="h-3.5 w-3.5" />
+            <span className="font-medium">Proficiency Levels:</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-green-500" />
+              <span className="text-xs">Advanced/Expert</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-500" />
+              <span className="text-xs">Intermediate</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-400" />
+              <span className="text-xs">Basic/Foundation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border-2 border-dashed border-muted-foreground/30" />
+              <span className="text-xs">Not Required</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="overflow-x-auto border rounded-xl">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="bg-muted text-muted-foreground">
-              <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-heading font-semibold min-w-[180px] border-b">Company</th>
-              {selectedSkills.map(key => (
-                <th key={key} className="px-3 py-3 text-center font-medium whitespace-nowrap border-b border-l border-muted-foreground/10">
-                  <Tooltip>
-                    <TooltipTrigger className="cursor-help underline decoration-dotted underline-offset-2">{key}</TooltipTrigger>
-                    <TooltipContent>{SKILL_SETS[key]}</TooltipContent>
+      {/* Heatmap View */}
+      {viewMode === "heatmap" && (
+        <div className="bg-card rounded-2xl border shadow-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="inline-block min-w-full">
+              {/* Header */}
+              <div className="flex border-b bg-muted/50 sticky top-0 z-10">
+                <div className="w-48 flex-shrink-0 px-4 py-3 font-heading font-semibold text-sm border-r sticky left-0 bg-muted/50 backdrop-blur-sm">
+                  Company
+                </div>
+                {skillKeys.map((key) => (
+                  <Tooltip key={key}>
+                    <TooltipTrigger asChild>
+                      <div className="w-24 flex-shrink-0 px-2 py-3 text-center text-xs font-medium border-r border-muted-foreground/10 cursor-help">
+                        {key}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-semibold">{SKILL_SETS[key]}</p>
+                    </TooltipContent>
                   </Tooltip>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paged.map(company => (
-              <tr key={company.company_id} className="border-b hover:bg-muted/30 transition-colors">
-                <td className="sticky left-0 z-10 bg-card px-4 py-3 border-r">
-                  <button
-                    onClick={() => navigate(`/companies/${company.company_id}`)}
-                    className="font-medium text-foreground hover:text-primary transition-colors text-left"
-                  >
-                    {company.short_name}
-                  </button>
-                  <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{company.name}</div>
-                </td>
-                {selectedSkills.map((key) => {
-                  const skill = company.skills.find(s => s.code === key);
-                  return (
-                    <td key={key} className="px-3 py-3 text-center border-l border-muted/50">
-                      <div className="flex items-center justify-center">
-                        {skill ? (
-                          <Tooltip delayDuration={0}>
-                            <TooltipTrigger>
-                              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 font-normal border ${getLevelBadgeColor(skill.level_name)} cursor-help`}>
-                                {skill.level_name || "Required"}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[250px] text-xs">
-                              <p className="font-semibold mb-1">{skill.name}</p>
-                              <p className="text-muted-foreground">{skill.topics || "No specific sub-topics listed."}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          <span className="text-muted-foreground/20">-</span>
-                        )}
+                ))}
+              </div>
+
+              {/* Rows */}
+              <div className="divide-y">
+                {filteredCompanies.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="heading-subsection mb-2">No Companies Found</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Try adjusting your search or filter criteria
+                    </p>
+                  </div>
+                ) : (
+                  filteredCompanies.map((company, idx) => (
+                    <motion.div
+                      key={company.company_id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.02, duration: 0.2 }}
+                      className="flex hover:bg-muted/30 transition-colors group"
+                    >
+                      {/* Company Name */}
+                      <div className="w-48 flex-shrink-0 px-4 py-3 border-r sticky left-0 bg-card group-hover:bg-muted/30 transition-colors">
+                        <button
+                          onClick={() => navigate(`/companies/${company.company_id}`)}
+                          className="font-medium text-sm text-foreground hover:text-primary transition-colors text-left w-full truncate"
+                          title={company.name}
+                        >
+                          {company.short_name}
+                        </button>
+                        <div className="text-[10px] text-muted-foreground truncate">
+                          {company.name}
+                        </div>
+                      </div>
+
+                      {/* Skill Cells */}
+                      {skillKeys.map((key) => {
+                        const skill = company.skills.find((s) => s.code === key);
+                        return (
+                          <div
+                            key={key}
+                            className="w-24 flex-shrink-0 px-2 py-3 border-r border-muted/50 flex items-center justify-center"
+                          >
+                            {skill ? (
+                              <Tooltip delayDuration={0}>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    className={`w-16 h-8 rounded-md border transition-all cursor-help flex items-center justify-center ${getProficiencyIntensity(
+                                      skill.level_name
+                                    )}`}
+                                  >
+                                    <div className={`w-2 h-2 rounded-full ${getProficiencyColor(skill.level_name)}`} />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-[280px]">
+                                  <p className="font-semibold mb-1">{skill.name}</p>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    Level: {skill.level_name}
+                                  </p>
+                                  {skill.topics && (
+                                    <p className="text-xs">{skill.topics}</p>
+                                  )}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <div className="w-16 h-8 border-2 border-dashed border-muted-foreground/20 rounded-md" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Table View (Fallback) */}
+      {viewMode === "table" && (
+        <div className="bg-card rounded-2xl border shadow-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/50 text-muted-foreground border-b">
+                  <th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 text-left font-heading font-semibold">
+                    Company
+                  </th>
+                  {skillKeys.map((key) => (
+                    <th key={key} className="px-3 py-3 text-center font-medium whitespace-nowrap border-l">
+                      <Tooltip>
+                        <TooltipTrigger className="cursor-help underline decoration-dotted">
+                          {key}
+                        </TooltipTrigger>
+                        <TooltipContent>{SKILL_SETS[key]}</TooltipContent>
+                      </Tooltip>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {filteredCompanies.map((company) => (
+                  <tr key={company.company_id} className="hover:bg-muted/30 transition-colors">
+                    <td className="sticky left-0 z-10 bg-card px-4 py-3 border-r">
+                      <button
+                        onClick={() => navigate(`/companies/${company.company_id}`)}
+                        className="font-medium text-foreground hover:text-primary transition-colors text-left"
+                      >
+                        {company.short_name}
+                      </button>
+                      <div className="text-xs text-muted-foreground truncate max-w-[150px]">
+                        {company.name}
                       </div>
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          Page {page} of {totalPages || 1}
-        </span>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-          <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
+                    {skillKeys.map((key) => {
+                      const skill = company.skills.find((s) => s.code === key);
+                      return (
+                        <td key={key} className="px-3 py-3 text-center border-l">
+                          {skill ? (
+                            <Tooltip delayDuration={0}>
+                              <TooltipTrigger>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs px-2 py-0.5 font-normal cursor-help ${getProficiencyIntensity(
+                                    skill.level_name
+                                  )}`}
+                                >
+                                  {skill.level_name}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[250px]">
+                                <p className="font-semibold mb-1">{skill.name}</p>
+                                <p className="text-xs">{skill.topics || "No specific topics listed."}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <span className="text-muted-foreground/30">—</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+      )}
+
+      {/* Stats Footer */}
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <span>
+          Showing {filteredCompanies.length} of {companies.length} companies
+        </span>
+        <span>
+          {skillKeys.length} skill categories analyzed
+        </span>
       </div>
     </div>
   );

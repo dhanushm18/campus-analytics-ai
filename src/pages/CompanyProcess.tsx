@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { companyService } from "../services/companyService";
-import { CompanyFull, hiringData } from "@/data";
+import { CompanyFull } from "@/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Code, UserCheck, MessageCircle, Monitor, ChevronDown } from "lucide-react";
@@ -30,6 +30,8 @@ export default function CompanyProcess() {
         toast.error("Failed to load company details");
         console.error(error);
       } else {
+        console.log("Fetched company data:", data);
+        console.log("Job role details:", data?.job_role_details);
         setCompany(data);
       }
       setLoading(false);
@@ -37,12 +39,48 @@ export default function CompanyProcess() {
     fetchCompany();
   }, [companyId]);
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading hiring process...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!company) return <div className="text-center py-20 text-muted-foreground">Company not found</div>;
 
-  // Use Atlassian data as sample for all
-  const roles = hiringData.job_role_details;
+  // Check if hiring data is available
+  if (!company.job_role_details || company.job_role_details.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/companies/${companyId}`)}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="heading-display">{company.short_name} — Hiring Process</h1>
+          </div>
+        </div>
+        <div className="text-center py-20">
+          <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="heading-subsection mb-2">No Hiring Data Available</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Hiring process information is not available for this company yet.
+          </p>
+          <Button onClick={() => navigate(`/companies/${companyId}`)}>
+            Back to Company Details
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const roles = company.job_role_details;
 
   return (
     <div className="space-y-6">
@@ -61,7 +99,7 @@ export default function CompanyProcess() {
           <div className="rounded-xl border bg-card p-5">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
               <h2 className="font-heading font-semibold text-base">{role.role_title}</h2>
-              <Badge variant="secondary" className="w-fit">₹{(role.ctc_or_stipend / 100000).toFixed(1)}L CTC</Badge>
+              <Badge variant="secondary" className="w-fit">₹{(role.ctc_or_stipend / 100000).toFixed(1)}L {role.compensation || 'CTC'}</Badge>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2">{role.job_description}</p>
           </div>
