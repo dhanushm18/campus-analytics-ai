@@ -128,13 +128,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-12 animate-fade-in">
-      {/* Hero Section */}
-      <div className="space-y-2">
-        <h1 className="heading-display">PES Placements & Research Analytics</h1>
-        <p className="text-muted-foreground text-base">
-          Comprehensive insights into campus recruitment trends, company profiles, and hiring patterns
-        </p>
-      </div>
+      {/* Hero Section Moved to Global Header */}
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6">
