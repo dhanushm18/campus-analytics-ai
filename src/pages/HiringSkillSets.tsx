@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { companyService } from "../services/companyService";
 import { SKILL_SETS } from "@/data";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/sonner";
-import { Search, Grid3x3, Table2, Info } from "lucide-react";
-import { motion } from "framer-motion";
+import { Search, Info } from "lucide-react";
 
 const skillKeys = Object.keys(SKILL_SETS);
 
@@ -91,7 +89,6 @@ interface CompanyWithSkills {
 
 export default function HiringSkillSets() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<"heatmap" | "table">("heatmap");
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
   const [companies, setCompanies] = useState<CompanyWithSkills[]>([]);
@@ -146,9 +143,9 @@ export default function HiringSkillSets() {
     <div className="space-y-8">
       {/* Hero Section */}
       <div className="space-y-3">
-        <h1 className="heading-display">Skills Analysis — Company Requirements Heatmap</h1>
+        <h1 className="heading-display">Skills Analysis — Company Requirements</h1>
         <p className="text-muted-foreground text-base max-w-3xl">
-          Visualize skill proficiency requirements across companies. Color intensity represents proficiency stages (1-10).
+          Detailed breakdown of skill proficiency requirements across companies. Proficiency stages (1-10) are color-coded for quick reference.
         </p>
       </div>
 
@@ -183,28 +180,6 @@ export default function HiringSkillSets() {
               <SelectItem value="10">Stage 10 (Pinnacle)</SelectItem>
             </SelectContent>
           </Select>
-
-          {/* View Toggle */}
-          <div className="flex gap-2 border rounded-lg p-1">
-            <Button
-              size="sm"
-              variant={viewMode === "heatmap" ? "default" : "ghost"}
-              onClick={() => setViewMode("heatmap")}
-              className="h-8 gap-2"
-            >
-              <Grid3x3 className="h-3.5 w-3.5" />
-              Heatmap
-            </Button>
-            <Button
-              size="sm"
-              variant={viewMode === "table" ? "default" : "ghost"}
-              onClick={() => setViewMode("table")}
-              className="h-8 gap-2"
-            >
-              <Table2 className="h-3.5 w-3.5" />
-              Table
-            </Button>
-          </div>
         </div>
 
         {/* Legend */}
@@ -228,34 +203,31 @@ export default function HiringSkillSets() {
         </div>
       </div>
 
-      {/* Heatmap View */}
-      {viewMode === "heatmap" && (
-        <div className="bg-card rounded-2xl border shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <div className="inline-block min-w-full">
-              {/* Header */}
-              <div className="flex border-b bg-muted/50 sticky top-0 z-10">
-                <div className="w-48 flex-shrink-0 px-4 py-3 font-heading font-semibold text-sm border-r sticky left-0 bg-muted/50 backdrop-blur-sm">
+      {/* Table View */}
+      <div className="bg-card rounded-2xl border shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/50 text-muted-foreground border-b">
+                <th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 text-left font-heading font-semibold">
                   Company
-                </div>
+                </th>
                 {skillKeys.map((key) => (
-                  <Tooltip key={key}>
-                    <TooltipTrigger asChild>
-                      <div className="w-24 flex-shrink-0 px-2 py-3 text-center text-xs font-medium border-r border-muted-foreground/10 cursor-help">
+                  <th key={key} className="px-3 py-3 text-center font-medium whitespace-nowrap border-l">
+                    <Tooltip>
+                      <TooltipTrigger className="cursor-help underline decoration-dotted">
                         {key}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="font-semibold">{SKILL_SETS[key]}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      </TooltipTrigger>
+                      <TooltipContent>{SKILL_SETS[key]}</TooltipContent>
+                    </Tooltip>
+                  </th>
                 ))}
-              </div>
-
-              {/* Rows */}
-              <div className="divide-y">
-                {filteredCompanies.length === 0 ? (
-                  <div className="text-center py-20">
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {filteredCompanies.length === 0 ? (
+                <tr>
+                  <td colSpan={skillKeys.length + 1} className="text-center py-20">
                     <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
                       <Search className="h-8 w-8 text-muted-foreground" />
                     </div>
@@ -263,108 +235,10 @@ export default function HiringSkillSets() {
                     <p className="text-sm text-muted-foreground">
                       Try adjusting your search or filter criteria
                     </p>
-                  </div>
-                ) : (
-                  filteredCompanies.map((company, idx) => (
-                    <motion.div
-                      key={company.company_id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.02, duration: 0.2 }}
-                      className="flex hover:bg-muted/30 transition-colors group"
-                    >
-                      {/* Company Name */}
-                      <div className="w-48 flex-shrink-0 px-4 py-3 border-r sticky left-0 bg-card group-hover:bg-muted/30 transition-colors">
-                        <button
-                          onClick={() => navigate(`/companies/${company.company_id}`)}
-                          className="font-medium text-sm text-foreground hover:text-primary transition-colors text-left w-full truncate"
-                          title={company.name}
-                        >
-                          {company.short_name}
-                        </button>
-                        <div className="text-[10px] text-muted-foreground truncate">
-                          {company.name}
-                        </div>
-                      </div>
-
-                      {/* Skill Cells */}
-                      {skillKeys.map((key) => {
-                        const skill = company.skills.find((s) => s.code === key);
-                        const stage = skill?.stage || 0;
-
-                        return (
-                          <div
-                            key={key}
-                            className="w-24 flex-shrink-0 px-2 py-3 border-r border-muted/50 flex items-center justify-center"
-                          >
-                            {skill && stage > 0 ? (
-                              <Tooltip delayDuration={0}>
-                                <TooltipTrigger asChild>
-                                  <div
-                                    className={`w-full h-12 rounded-md border transition-all cursor-help flex flex-col items-center justify-center gap-0.5 ${getStageIntensity(stage)}`}
-                                  >
-                                    <span className="text-sm font-bold text-white mix-blend-difference">
-                                      {stage}
-                                    </span>
-                                    <span className="text-[10px] font-medium text-white mix-blend-difference opacity-90">
-                                      {skill.level_code}
-                                    </span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-[280px]">
-                                  <p className="font-semibold mb-1">{skill.name}</p>
-                                  <p className="text-xs text-muted-foreground mb-1">
-                                    Stage {stage}: {getStageName(stage)}
-                                  </p>
-                                  <p className="text-xs mb-2">
-                                    <strong>Proficiency:</strong> {skill.level_name} ({skill.level_code})
-                                  </p>
-                                  {skill.topics && (
-                                    <p className="text-xs border-t pt-2 mt-2">
-                                      <strong>Topics:</strong> {skill.topics}
-                                    </p>
-                                  )}
-                                </TooltipContent>
-                              </Tooltip>
-                            ) : (
-                              <div className="w-full h-12 border-2 border-dashed border-muted-foreground/20 rounded-md" />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Table View (Fallback) */}
-      {viewMode === "table" && (
-        <div className="bg-card rounded-2xl border shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/50 text-muted-foreground border-b">
-                  <th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 text-left font-heading font-semibold">
-                    Company
-                  </th>
-                  {skillKeys.map((key) => (
-                    <th key={key} className="px-3 py-3 text-center font-medium whitespace-nowrap border-l">
-                      <Tooltip>
-                        <TooltipTrigger className="cursor-help underline decoration-dotted">
-                          {key}
-                        </TooltipTrigger>
-                        <TooltipContent>{SKILL_SETS[key]}</TooltipContent>
-                      </Tooltip>
-                    </th>
-                  ))}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filteredCompanies.map((company) => (
+              ) : (
+                filteredCompanies.map((company) => (
                   <tr key={company.company_id} className="hover:bg-muted/30 transition-colors">
                     <td className="sticky left-0 z-10 bg-card px-4 py-3 border-r">
                       <button
@@ -407,12 +281,12 @@ export default function HiringSkillSets() {
                       );
                     })}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
       {/* Stats Footer */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
