@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { MapPin, Users, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 
 interface CompanyCardProps {
     company: {
@@ -27,6 +28,8 @@ const categoryColors: Record<string, string> = {
 export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
     const categoryColor = categoryColors[company.category] || "bg-gray-50 text-gray-700 border-gray-200";
 
+    const [imgError, setImgError] = useState(false);
+
     return (
         <motion.button
             initial={{ opacity: 0, y: 20 }}
@@ -42,9 +45,20 @@ export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
             <div className="relative">
                 {/* Logo and Name */}
                 <div className="flex items-start gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center font-semibold text-xl text-primary shrink-0 transition-transform duration-250 group-hover:scale-110">
-                        {company.short_name.charAt(0)}
-                    </div>
+                    {(company.logo_url && !imgError) ? (
+                        <div className="w-14 h-14 rounded-xl border border-border/10 bg-white p-2 flex items-center justify-center shrink-0 transition-transform duration-250 group-hover:scale-110">
+                            <img
+                                src={company.logo_url}
+                                alt={company.name}
+                                className="w-full h-full object-contain"
+                                onError={() => setImgError(true)}
+                            />
+                        </div>
+                    ) : (
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center font-semibold text-xl text-primary shrink-0 transition-transform duration-250 group-hover:scale-110">
+                            {company.short_name.charAt(0)}
+                        </div>
+                    )}
                     <div className="min-w-0 flex-1">
                         <h3 className="font-semibold text-base text-foreground truncate mb-1.5 group-hover:text-primary transition-colors">
                             {company.name}

@@ -80,6 +80,7 @@ export default function CompanyDetail() {
   const navigate = useNavigate();
   const [company, setCompany] = useState<CompanyFull | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -137,9 +138,20 @@ export default function CompanyDetail() {
           {/* Company Header */}
           <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
             {/* Logo */}
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-semibold text-3xl text-primary shadow-lg">
-              {company.short_name.charAt(0)}
-            </div>
+            {(company.logo_url && !imgError) ? (
+              <div className="w-20 h-20 rounded-2xl bg-white p-3 flex items-center justify-center shadow-lg shrink-0">
+                <img
+                  src={company.logo_url}
+                  alt={company.name}
+                  className="w-full h-full object-contain"
+                  onError={() => setImgError(true)}
+                />
+              </div>
+            ) : (
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-semibold text-3xl text-primary shadow-lg shrink-0">
+                {company.short_name.charAt(0)}
+              </div>
+            )}
 
             {/* Info */}
             <div className="flex-1 space-y-4">

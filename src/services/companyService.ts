@@ -105,7 +105,7 @@ export const companyService = {
         const [companyResult, hiringResult] = await Promise.all([
             supabase
                 .from('company_json')
-                .select('full_json')
+                .select('full_json, short_json')
                 .eq('company_id', companyId)
                 .single(),
             supabase
@@ -121,17 +121,19 @@ export const companyService = {
         }
 
         const companyData = companyResult.data?.full_json as CompanyFull;
+        const shortData = companyResult.data?.short_json as any;
+
+        // Ensure logo_url from short_json if missing in full_json
+        if (!companyData.logo_url && shortData?.logo_url) {
+            companyData.logo_url = shortData.logo_url;
+        }
 
         // Merge hiring rounds data if available
         if (!hiringResult.error && hiringResult.data?.hiring_data) {
             const hiringData = hiringResult.data.hiring_data as any;
-            console.log('Hiring data from DB:', hiringData);
             if (hiringData.job_role_details) {
                 companyData.job_role_details = hiringData.job_role_details;
-                console.log('Merged job_role_details:', companyData.job_role_details);
             }
-        } else if (hiringResult.error) {
-            console.warn(`No hiring data found for company ${companyId}:`, hiringResult.error);
         }
 
         return { data: companyData, error: null };
