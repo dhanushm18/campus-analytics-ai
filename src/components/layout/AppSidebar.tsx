@@ -34,8 +34,21 @@ export function AppSidebar() {
     <Sidebar className="border-r border-border/50 bg-sidebar-background" collapsible="icon">
       <SidebarHeader className="p-6 border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md">
-            <TrendingUp className="h-5 w-5 text-primary-foreground" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md flex items-center justify-center bg-white">
+            <img
+              src="/pes-logo.png"
+              alt="PES University"
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                // Fallback to gradient icon if logo not found
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon');
+                if (fallback) (fallback as HTMLElement).style.display = 'flex';
+              }}
+            />
+            <div className="fallback-icon hidden w-full h-full bg-gradient-to-br from-primary to-accent items-center justify-center rounded-xl">
+              <TrendingUp className="h-5 w-5 text-primary-foreground" />
+            </div>
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="font-semibold text-base text-foreground tracking-tight">PES Placements & Research</span>

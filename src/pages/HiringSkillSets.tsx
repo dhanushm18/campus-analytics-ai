@@ -13,20 +13,64 @@ import { motion } from "framer-motion";
 
 const skillKeys = Object.keys(SKILL_SETS);
 
-function getProficiencyColor(level: string): string {
-  const l = level?.toLowerCase() || "";
-  if (l.includes("advanced") || l.includes("expert")) return "bg-green-500";
-  if (l.includes("interm")) return "bg-blue-500";
-  if (l.includes("basic") || l.includes("founda")) return "bg-gray-400";
-  return "bg-gray-200";
+// Get color based on proficiency stage (1-10)
+function getStageColor(stage: number): string {
+  if (!stage || stage < 1) return "bg-gray-50";
+
+  // Gradient from light to dark blue based on stage
+  const colors = [
+    "bg-blue-50",   // Stage 1
+    "bg-blue-100",  // Stage 2
+    "bg-blue-200",  // Stage 3
+    "bg-blue-300",  // Stage 4
+    "bg-blue-400",  // Stage 5
+    "bg-blue-500",  // Stage 6
+    "bg-indigo-500", // Stage 7
+    "bg-indigo-600", // Stage 8
+    "bg-violet-600", // Stage 9
+    "bg-violet-700", // Stage 10
+  ];
+
+  // Cap at 10 just in case
+  const index = Math.min(stage, 10) - 1;
+  return colors[index] || "bg-gray-50";
 }
 
-function getProficiencyIntensity(level: string): string {
-  const l = level?.toLowerCase() || "";
-  if (l.includes("advanced") || l.includes("expert")) return "bg-green-100 hover:bg-green-200 border-green-300";
-  if (l.includes("interm")) return "bg-blue-100 hover:bg-blue-200 border-blue-300";
-  if (l.includes("basic") || l.includes("founda")) return "bg-gray-100 hover:bg-gray-200 border-gray-300";
-  return "bg-gray-50 hover:bg-gray-100 border-gray-200";
+function getStageIntensity(stage: number): string {
+  if (!stage || stage < 1) return "bg-gray-50 hover:bg-gray-100 border-gray-200";
+
+  const intensities = [
+    "bg-blue-50 hover:bg-blue-100 border-blue-200",      // Stage 1
+    "bg-blue-100 hover:bg-blue-150 border-blue-300",     // Stage 2
+    "bg-blue-200 hover:bg-blue-250 border-blue-400",     // Stage 3
+    "bg-blue-300 hover:bg-blue-350 border-blue-500",     // Stage 4
+    "bg-blue-400 hover:bg-blue-450 border-blue-600",     // Stage 5
+    "bg-blue-500 hover:bg-blue-550 border-blue-700",     // Stage 6
+    "bg-indigo-500 hover:bg-indigo-550 border-indigo-700 text-white", // Stage 7
+    "bg-indigo-600 hover:bg-indigo-650 border-indigo-800 text-white", // Stage 8
+    "bg-violet-600 hover:bg-violet-650 border-violet-800 text-white", // Stage 9
+    "bg-violet-700 hover:bg-violet-750 border-violet-900 text-white", // Stage 10
+  ];
+
+  const index = Math.min(stage, 10) - 1;
+  return intensities[index] || "bg-gray-50 hover:bg-gray-100 border-gray-200";
+}
+
+function getStageName(stage: number): string {
+  const stages = [
+    "Stage 1: Conceptual",
+    "Stage 2: Application",
+    "Stage 3: Analysis",
+    "Stage 4: Evaluation",
+    "Stage 5: Creation",
+    "Stage 6: Mastery",
+    "Stage 7: Expertise",
+    "Stage 8: Leadership",
+    "Stage 9: Visionary",
+    "Stage 10: Pinnacle"
+  ];
+  const index = Math.min(stage, 10) - 1;
+  return stages[index] || "Not Required";
 }
 
 interface SkillData {
@@ -49,8 +93,7 @@ export default function HiringSkillSets() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"heatmap" | "table">("heatmap");
   const [searchQuery, setSearchQuery] = useState("");
-  const [proficiencyFilter, setProficiencyFilter] = useState<string>("all");
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(skillKeys);
+  const [stageFilter, setStageFilter] = useState<string>("all");
   const [companies, setCompanies] = useState<CompanyWithSkills[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,21 +120,16 @@ export default function HiringSkillSets() {
         return false;
       }
 
-      // Proficiency filter
-      if (proficiencyFilter !== "all") {
-        const hasMatchingSkill = company.skills.some(skill => {
-          const level = skill.level_name?.toLowerCase() || "";
-          if (proficiencyFilter === "advanced" && (level.includes("advanced") || level.includes("expert"))) return true;
-          if (proficiencyFilter === "intermediate" && level.includes("interm")) return true;
-          if (proficiencyFilter === "basic" && (level.includes("basic") || level.includes("founda"))) return true;
-          return false;
-        });
+      // Stage filter
+      if (stageFilter !== "all") {
+        const minStage = parseInt(stageFilter);
+        const hasMatchingSkill = company.skills.some(skill => skill.stage >= minStage);
         if (!hasMatchingSkill) return false;
       }
 
       return true;
     });
-  }, [companies, searchQuery, proficiencyFilter]);
+  }, [companies, searchQuery, stageFilter]);
 
   if (loading) {
     return (
@@ -110,7 +148,7 @@ export default function HiringSkillSets() {
       <div className="space-y-3">
         <h1 className="heading-display">Skills Analysis — Company Requirements Heatmap</h1>
         <p className="text-muted-foreground text-base max-w-3xl">
-          Visualize and compare skill requirements across companies. Color intensity represents proficiency levels required for campus placements.
+          Visualize skill proficiency requirements across companies. Color intensity represents proficiency stages (1-10).
         </p>
       </div>
 
@@ -128,16 +166,21 @@ export default function HiringSkillSets() {
             />
           </div>
 
-          {/* Proficiency Filter */}
-          <Select value={proficiencyFilter} onValueChange={setProficiencyFilter}>
-            <SelectTrigger className="w-[180px] h-10">
-              <SelectValue placeholder="All Levels" />
+          {/* Stage Filter */}
+          <Select value={stageFilter} onValueChange={setStageFilter}>
+            <SelectTrigger className="w-[200px] h-10">
+              <SelectValue placeholder="All Stages" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Proficiency Levels</SelectItem>
-              <SelectItem value="basic">Basic/Foundation</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="advanced">Advanced/Expert</SelectItem>
+              <SelectItem value="all">All Proficiency Stages</SelectItem>
+              <SelectItem value="1">Stage 1+ (Conceptual)</SelectItem>
+              <SelectItem value="2">Stage 2+ (Application)</SelectItem>
+              <SelectItem value="3">Stage 3+ (Analysis)</SelectItem>
+              <SelectItem value="4">Stage 4+ (Evaluation)</SelectItem>
+              <SelectItem value="5">Stage 5+ (Creation)</SelectItem>
+              <SelectItem value="6">Stage 6+ (Mastery)</SelectItem>
+              <SelectItem value="8">Stage 8+ (Leadership)</SelectItem>
+              <SelectItem value="10">Stage 10 (Pinnacle)</SelectItem>
             </SelectContent>
           </Select>
 
@@ -165,27 +208,21 @@ export default function HiringSkillSets() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-6 pt-2 border-t">
+        <div className="flex items-center gap-6 pt-2 border-t flex-wrap">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Info className="h-3.5 w-3.5" />
-            <span className="font-medium">Proficiency Levels:</span>
+            <span className="font-medium">Proficiency Stages:</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-green-500" />
-              <span className="text-xs">Advanced/Expert</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-500" />
-              <span className="text-xs">Intermediate</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-gray-400" />
-              <span className="text-xs">Basic/Foundation</span>
-            </div>
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(stage => (
+              <div key={stage} className="flex items-center gap-1">
+                <div className={`w-4 h-4 rounded ${getStageColor(stage)} border`} />
+                <span className="text-[10px] text-muted-foreground">{stage}</span>
+              </div>
+            ))}
+            <div className="flex items-center gap-1 ml-2">
               <div className="w-4 h-4 rounded border-2 border-dashed border-muted-foreground/30" />
-              <span className="text-xs">Not Required</span>
+              <span className="text-[10px] text-muted-foreground">None</span>
             </div>
           </div>
         </div>
@@ -253,34 +290,44 @@ export default function HiringSkillSets() {
                       {/* Skill Cells */}
                       {skillKeys.map((key) => {
                         const skill = company.skills.find((s) => s.code === key);
+                        const stage = skill?.stage || 0;
+
                         return (
                           <div
                             key={key}
                             className="w-24 flex-shrink-0 px-2 py-3 border-r border-muted/50 flex items-center justify-center"
                           >
-                            {skill ? (
+                            {skill && stage > 0 ? (
                               <Tooltip delayDuration={0}>
                                 <TooltipTrigger asChild>
                                   <div
-                                    className={`w-16 h-8 rounded-md border transition-all cursor-help flex items-center justify-center ${getProficiencyIntensity(
-                                      skill.level_name
-                                    )}`}
+                                    className={`w-full h-12 rounded-md border transition-all cursor-help flex flex-col items-center justify-center gap-0.5 ${getStageIntensity(stage)}`}
                                   >
-                                    <div className={`w-2 h-2 rounded-full ${getProficiencyColor(skill.level_name)}`} />
+                                    <span className="text-sm font-bold text-white mix-blend-difference">
+                                      {stage}
+                                    </span>
+                                    <span className="text-[10px] font-medium text-white mix-blend-difference opacity-90">
+                                      {skill.level_code}
+                                    </span>
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-[280px]">
                                   <p className="font-semibold mb-1">{skill.name}</p>
-                                  <p className="text-xs text-muted-foreground mb-2">
-                                    Level: {skill.level_name}
+                                  <p className="text-xs text-muted-foreground mb-1">
+                                    Stage {stage}: {getStageName(stage)}
+                                  </p>
+                                  <p className="text-xs mb-2">
+                                    <strong>Proficiency:</strong> {skill.level_name} ({skill.level_code})
                                   </p>
                                   {skill.topics && (
-                                    <p className="text-xs">{skill.topics}</p>
+                                    <p className="text-xs border-t pt-2 mt-2">
+                                      <strong>Topics:</strong> {skill.topics}
+                                    </p>
                                   )}
                                 </TooltipContent>
                               </Tooltip>
                             ) : (
-                              <div className="w-16 h-8 border-2 border-dashed border-muted-foreground/20 rounded-md" />
+                              <div className="w-full h-12 border-2 border-dashed border-muted-foreground/20 rounded-md" />
                             )}
                           </div>
                         );
@@ -332,22 +379,24 @@ export default function HiringSkillSets() {
                     </td>
                     {skillKeys.map((key) => {
                       const skill = company.skills.find((s) => s.code === key);
+                      const stage = skill?.stage || 0;
+
                       return (
                         <td key={key} className="px-3 py-3 text-center border-l">
-                          {skill ? (
+                          {skill && stage > 0 ? (
                             <Tooltip delayDuration={0}>
                               <TooltipTrigger>
                                 <Badge
                                   variant="outline"
-                                  className={`text-xs px-2 py-0.5 font-normal cursor-help ${getProficiencyIntensity(
-                                    skill.level_name
-                                  )}`}
+                                  className={`text-xs px-2 py-0.5 font-normal cursor-help ${getStageIntensity(stage)}`}
                                 >
-                                  {skill.level_name}
+                                  {stage} · {skill.level_code}
                                 </Badge>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[250px]">
                                 <p className="font-semibold mb-1">{skill.name}</p>
+                                <p className="text-xs mb-1">Stage {stage}: {getStageName(stage)}</p>
+                                <p className="text-xs mb-1"><strong>Proficiency:</strong> {skill.level_name}</p>
                                 <p className="text-xs">{skill.topics || "No specific topics listed."}</p>
                               </TooltipContent>
                             </Tooltip>

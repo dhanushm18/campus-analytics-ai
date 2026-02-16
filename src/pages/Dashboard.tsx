@@ -7,6 +7,7 @@ import { CompanyShort } from "@/data";
 import { toast } from "@/components/ui/sonner";
 import { MetricCard } from "@/components/MetricCard";
 import { SearchBar } from "@/components/SearchBar";
+import { Badge } from "@/components/ui/badge";
 
 const categoryConfig = [
   { key: "total", label: "Total Companies", icon: Building2, param: "", color: "bg-primary text-primary-foreground" },
@@ -17,9 +18,61 @@ const categoryConfig = [
   { key: "enterprise", label: "Enterprise", icon: Briefcase, param: "Enterprise", color: "bg-orange-500 text-white" },
 ] as const;
 
+const ctcCategories = [
+  {
+    key: "marquee",
+    range: "₹15L+",
+    icon: Crown,
+    color: "bg-red-500",
+    bgGradient: "from-red-50 to-white",
+    badgeColor: "bg-red-100 text-red-700 border-red-200",
+    textColor: "text-red-600",
+    hoverGradient: "from-red-500/5",
+    badge: "Premium",
+    description: "Top-tier companies with exceptional packages"
+  },
+  {
+    key: "superdream",
+    range: "₹10-15L",
+    icon: Sparkles,
+    color: "bg-purple-500",
+    bgGradient: "from-purple-50 to-white",
+    badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+    textColor: "text-purple-600",
+    hoverGradient: "from-purple-500/5",
+    badge: "High",
+    description: "Excellent opportunities with competitive pay"
+  },
+  {
+    key: "dream",
+    range: "₹6-10L",
+    icon: Star,
+    color: "bg-teal-500",
+    bgGradient: "from-teal-50 to-white",
+    badgeColor: "bg-teal-100 text-teal-700 border-teal-200",
+    textColor: "text-teal-600",
+    hoverGradient: "from-teal-500/5",
+    badge: "Good",
+    description: "Strong companies with solid packages"
+  },
+  {
+    key: "regular",
+    range: "Below ₹6L",
+    icon: Users,
+    color: "bg-gray-500",
+    bgGradient: "from-gray-50 to-white",
+    badgeColor: "bg-gray-100 text-gray-700 border-gray-200",
+    textColor: "text-gray-600",
+    hoverGradient: "from-gray-500/5",
+    badge: "Standard",
+    description: "Entry-level opportunities for growth"
+  }
+];
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [counts, setCounts] = useState({ total: 0, marquee: 0, superdream: 0, dream: 0, regular: 0, enterprise: 0 });
+  const [ctcCounts, setCtcCounts] = useState({ marquee: 0, superdream: 0, dream: 0, regular: 0 });
   const [companies, setCompanies] = useState<CompanyShort[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -28,12 +81,14 @@ export default function Dashboard() {
     async function fetchData() {
       setLoading(true);
       try {
-        const [stats, allCompanies] = await Promise.all([
+        const [stats, ctcStats, allCompanies] = await Promise.all([
           companyService.getDashboardStats(),
+          companyService.getCTCCategoryCounts(),
           companyService.getAllCompanies()
         ]);
 
         setCounts(stats);
+        setCtcCounts(ctcStats);
         if (allCompanies.data) {
           setCompanies(allCompanies.data);
         }
@@ -96,7 +151,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Smart Search Section */}
+      {/* Centered Search Section */}
       <div className="space-y-6">
         <div className="text-center space-y-2">
           <h2 className="heading-section">Quick Company Search</h2>
@@ -112,47 +167,39 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Featured Categories */}
+      {/* CTC-Based Categorization */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="heading-section">Explore by Category</h2>
-          <button
-            onClick={() => navigate("/companies")}
-            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            View all companies →
-          </button>
+        <div className="space-y-2">
+          <h2 className="heading-section">CTC-Based Company Categories</h2>
+          <p className="text-sm text-muted-foreground">Companies categorized by compensation packages offered during campus placements</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {categoryConfig.slice(1).map((cat, index) => {
-            const Icon = cat.icon;
-            const count = counts[cat.key as keyof typeof counts];
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {ctcCategories.map((category, index) => {
+            const Icon = category.icon;
+            const count = ctcCounts[category.key as keyof typeof ctcCounts];
 
             return (
-              <motion.button
-                key={cat.key}
+              <motion.div
+                key={category.key}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-                onClick={() => navigate(`/companies?category=${cat.param}`)}
-                className="group relative rounded-xl border border-border/50 bg-card p-6 text-left transition-all duration-250 hover:shadow-lg hover:-translate-y-1 hover:border-primary/20"
+                transition={{ delay: 0.6 + index * 0.1 }}
+                className={`group relative rounded-2xl border border-border/50 bg-gradient-to-br ${category.bgGradient} p-6 shadow-sm hover:shadow-xl transition-all duration-250 hover:-translate-y-1 cursor-pointer`}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${cat.color} transition-transform duration-250 group-hover:scale-110`}>
+                  <div className={`w-12 h-12 rounded-xl ${category.color} text-white flex items-center justify-center transition-transform duration-250 group-hover:scale-110`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <div className="text-2xl font-semibold text-foreground">{count}</div>
+                  <Badge variant="outline" className={category.badgeColor}>{category.badge}</Badge>
                 </div>
-
-                <h3 className="font-semibold text-base text-foreground mb-1">{cat.label}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {count} {count === 1 ? 'company' : 'companies'} available
-                </p>
-
-                {/* Hover effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250 rounded-xl" />
-              </motion.button>
+                <p className={`text-2xl font-bold ${category.textColor} mb-2`}>{category.range}</p>
+                <p className="text-sm text-muted-foreground mb-3">{category.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{count} {count === 1 ? 'company' : 'companies'}</span>
+                </div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${category.hoverGradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250 rounded-2xl`} />
+              </motion.div>
             );
           })}
         </div>

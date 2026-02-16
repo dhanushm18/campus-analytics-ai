@@ -143,6 +143,70 @@ export const companyService = {
     },
 
     /**
+     * Fetch CTC-based category counts by analyzing salary data from hiring_data.
+     * Categories: 15L+, 10-15L, 6-10L, Below 6L
+     */
+    async getCTCCategoryCounts() {
+        try {
+            // Fetch all companies with their hiring data
+            const { data, error } = await supabase
+                .from('company_hiring_rounds_json')
+                .select('company_id, hiring_data');
+
+            if (error) {
+                console.error('Error fetching CTC data:', error);
+                return {
+                    marquee: 0,      // 15L+
+                    superdream: 0,   // 10-15L
+                    dream: 0,        // 6-10L
+                    regular: 0       // Below 6L
+                };
+            }
+
+            // Categorize companies by max CTC
+            const categories = {
+                marquee: 0,
+                superdream: 0,
+                dream: 0,
+                regular: 0
+            };
+
+            data?.forEach((row: any) => {
+                const hiringData = row.hiring_data;
+                if (!hiringData?.job_role_details) return;
+
+                // Find max CTC across all roles for this company
+                let maxCTC = 0;
+                hiringData.job_role_details.forEach((role: any) => {
+                    const ctc = role.ctc_or_stipend || 0;
+                    if (ctc > maxCTC) maxCTC = ctc;
+                });
+
+                // Categorize based on max CTC
+                if (maxCTC >= 1500000) {
+                    categories.marquee++;
+                } else if (maxCTC >= 1000000) {
+                    categories.superdream++;
+                } else if (maxCTC >= 600000) {
+                    categories.dream++;
+                } else if (maxCTC > 0) {
+                    categories.regular++;
+                }
+            });
+
+            return categories;
+        } catch (error) {
+            console.error('Error calculating CTC categories:', error);
+            return {
+                marquee: 0,
+                superdream: 0,
+                dream: 0,
+                regular: 0
+            };
+        }
+    },
+
+    /**
      * Fetch all companies with full details to extract skills.
      * This is needed because skills are nested in full_json > job_role_details > hiring_rounds.
      */
