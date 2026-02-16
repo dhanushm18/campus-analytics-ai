@@ -29,10 +29,18 @@ export const companyService = {
             .select('short_json', { count: 'exact' });
 
         if (category && category !== 'all') {
-            // Filter by category within the JSON blob
-            // Note: This assumes short_json has a 'category' field.
-            // Postgres JSONB operator ->> returns text.
-            query = query.eq('short_json->>category', category);
+            if (['Marquee', 'SuperDream', 'Dream', 'Regular'].includes(category)) {
+                // Use CTC-based logic for these categories
+                const ids = await this.getCompanyIdsByCTCCategory(category);
+                if (ids.length > 0) {
+                    query = query.in('company_id', ids);
+                } else {
+                    return { data: [], count: 0, error: null };
+                }
+            } else {
+                // Use static category for Enterprise etc.
+                query = query.eq('short_json->>category', category);
+            }
         }
 
         const { data, error, count } = await query
@@ -48,6 +56,44 @@ export const companyService = {
         const companies = data?.map((row: any) => row.short_json) || [];
 
         return { data: companies, count, error: null };
+    },
+
+    /**
+     * Helper to get company IDs based on CTC category logic
+     */
+    async getCompanyIdsByCTCCategory(category: string): Promise<number[]> {
+        const { data, error } = await supabase
+            .from('company_hiring_rounds_json')
+            .select('company_id, hiring_data');
+
+        if (error || !data) return [];
+
+        const validIds: number[] = [];
+
+        data.forEach((row: any) => {
+            const hiringData = row.hiring_data;
+            if (!hiringData?.job_role_details) return;
+
+            // Find max CTC
+            let maxCTC = 0;
+            hiringData.job_role_details.forEach((role: any) => {
+                const ctc = typeof role.ctc_or_stipend === 'string'
+                    ? parseFloat(role.ctc_or_stipend.replace(/[^0-9.]/g, ''))
+                    : (role.ctc_or_stipend || 0);
+                if (ctc > maxCTC) maxCTC = ctc;
+            });
+
+            let assignedCategory = 'Regular';
+            if (maxCTC >= 1500000) assignedCategory = 'Marquee';
+            else if (maxCTC >= 1000000) assignedCategory = 'SuperDream';
+            else if (maxCTC >= 600000) assignedCategory = 'Dream';
+
+            if (assignedCategory === category) {
+                validIds.push(row.company_id);
+            }
+        });
+
+        return validIds;
     },
 
     /**
@@ -112,21 +158,22 @@ export const companyService = {
 
     async getDashboardStats() {
         try {
-            const [total, marquee, superdream, dream, regular, enterprise] = await Promise.all([
+            // Fetch Total and Enterprise counts from DB directly
+            const [total, enterprise] = await Promise.all([
                 supabase.from('company_json').select('*', { count: 'exact', head: true }),
-                supabase.from('company_json').select('*', { count: 'exact', head: true }).eq('short_json->>category', 'Marquee'),
-                supabase.from('company_json').select('*', { count: 'exact', head: true }).eq('short_json->>category', 'SuperDream'),
-                supabase.from('company_json').select('*', { count: 'exact', head: true }).eq('short_json->>category', 'Dream'),
-                supabase.from('company_json').select('*', { count: 'exact', head: true }).eq('short_json->>category', 'Regular'),
                 supabase.from('company_json').select('*', { count: 'exact', head: true }).eq('short_json->>category', 'Enterprise'),
             ]);
 
+            // Fetch CTC-based counts using the existing logic
+            // This ensures Marquee, SuperDream, Dream, Regular are based on actual CTC
+            const ctcCounts = await this.getCTCCategoryCounts();
+
             return {
                 total: total.count || 0,
-                marquee: marquee.count || 0,
-                superdream: superdream.count || 0,
-                dream: dream.count || 0,
-                regular: regular.count || 0,
+                marquee: ctcCounts.marquee,
+                superdream: ctcCounts.superdream,
+                dream: ctcCounts.dream,
+                regular: ctcCounts.regular,
                 enterprise: enterprise.count || 0,
             };
         } catch (error) {
