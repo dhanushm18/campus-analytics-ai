@@ -76,13 +76,21 @@ export default function Signup() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        {/* Logo / Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent mb-4 mx-auto">
-            <span className="text-lg font-bold text-white">📊</span>
-          </div>
-          <h1 className="heading-display mb-2">Get Started</h1>
-          <p className="text-muted-foreground">Create your account to access placement intelligence</p>
+        {/* Header Logo */}
+        <div className="text-center mb-12">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="flex justify-center mb-6"
+          >
+            <img
+              src="https://pesce.ac.in/img/pes%20logo%201.svg"
+              alt="PES"
+              className="h-14 w-auto drop-shadow-lg"
+            />
+          </motion.div>
+          <h1 className="text-2xl font-bold text-foreground">Sign Up</h1>
         </div>
 
         {/* Signup Form Card */}
