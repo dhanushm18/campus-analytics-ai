@@ -6,11 +6,29 @@
 import OpenAI from "openai";
 import type { SkillGap, RoadmapOutput } from '@/utils/roadmapEngine';
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+// Lazy-initialize OpenAI client to prevent crashes if API key is missing at load time
+let openaiInstance: OpenAI | null = null;
+
+const getOpenAI = () => {
+  if (openaiInstance) return openaiInstance;
+
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (!apiKey) {
+    console.warn('OpenAI API key is missing. Skipping AI enhancement.');
+    return null;
+  }
+
+  try {
+    openaiInstance = new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true
+    });
+    return openaiInstance;
+  } catch (error) {
+    console.error("Failed to initialize OpenAI:", error);
+    return null;
+  }
+};
 
 interface AIRoadmapRequest {
   companyName: string;
@@ -107,12 +125,8 @@ function parseAIResponse(responseText: string): AIEnhancedPlan | null {
 export async function generateAIEnhancedRoadmap(
   request: AIRoadmapRequest
 ): Promise<AIEnhancedPlan | null> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-
-  if (!apiKey) {
-    console.warn('OpenAI API key not configured. Skipping AI enhancement.');
-    return null;
-  }
+  const openai = getOpenAI();
+  if (!openai) return null;
 
   try {
     const prompt = buildPrompt(request);

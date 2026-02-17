@@ -1,7 +1,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Gemini API
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// Lazy-initialize Gemini client to prevent crashes if API key is missing at load time
+let genAIInstance: GoogleGenerativeAI | null = null;
+
+const getGenAI = () => {
+    if (genAIInstance) return genAIInstance;
+
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+        console.warn("Gemini API key is missing. AI features will use fallbacks.");
+        return null;
+    }
+
+    try {
+        genAIInstance = new GoogleGenerativeAI(apiKey);
+        return genAIInstance;
+    } catch (error) {
+        console.error("Failed to initialize Gemini:", error);
+        return null;
+    }
+};
 
 export interface ParsedProject {
     project_name: string;
@@ -17,6 +35,21 @@ export const geminiHelper = {
      * Extracts structured project data from raw resume text using Gemini
      */
     async extractProjects(resumeText: string): Promise<ParsedProject[]> {
+        const genAI = getGenAI();
+        const fallbackProject = [{
+            project_name: "Portfolio Analysis (Fallback)",
+            problem_statement: "Analyzing the provided technical skills and projects.",
+            technologies_used: ["React", "Node.js", "Python", "Data Analysis"], // Generic defaults
+            architecture_type: "Modern Web / Data Pipeline",
+            domain: "General Technology intersection",
+            description: resumeText.slice(0, 800) // Use their actual text
+        }];
+
+        if (!genAI) {
+            console.log("Using manual fallback for extractProjects due to missing Gemini client");
+            return fallbackProject;
+        }
+
         // Using gemini-1.5-flash for better reliability and lower cost
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -65,14 +98,7 @@ export const geminiHelper = {
             // FALLBACK: Return a manual project so the user can proceed
             // This ensures "AI Feature" seems to work even if API fails
             console.log("Activating Hard Fallback for Project Extraction");
-            return [{
-                project_name: "Portfolio Analysis (Fallback)",
-                problem_statement: "Analyzing the provided technical skills and projects.",
-                technologies_used: ["React", "Node.js", "Python", "Data Analysis"], // Generic defaults
-                architecture_type: "Modern Web / Data Pipeline",
-                domain: "General Technology intersection",
-                description: resumeText.slice(0, 800) // Use their actual text
-            }];
+            return fallbackProject;
         }
     },
 
@@ -80,6 +106,22 @@ export const geminiHelper = {
      * Generates strategic feedback comparing a student project to company INNOVX data
      */
     async generateStrategicFeedback(project: ParsedProject, companyName: string, companyInnovxData: any): Promise<{ feedback: string, improvements: string[], differentiation: string[] }> {
+        const genAI = getGenAI();
+        const fallbackFeedback = {
+            feedback: "Based on the technical alignment, this portfolio shows strong potential. The identified skills in " + project.technologies_used.join(", ") + " are relevant. To improve alignment with " + companyName + ", focus on demonstrating deeper understanding of their core business domain and scaling challenges.",
+            improvements: [
+                "Highlight specific metrics (latency, throughput) in your project descriptions.",
+                "Explicitly mention how your architecture solves scalability problems.",
+                "Add unit and integration tests to demonstrate reliability."
+            ],
+            differentiation: [
+                "Contribute to open source projects related to " + companyName + "'s tech stack.",
+                "Write a technical blog post explaining a complex problem you solved."
+            ]
+        };
+
+        if (!genAI) return fallbackFeedback;
+
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         // Simplify company data string to save tokens
@@ -123,18 +165,7 @@ export const geminiHelper = {
         } catch (error) {
             console.error("Gemini Feedback Error:", error);
             // Fallback feedback
-            return {
-                feedback: "Based on the technical alignment, this portfolio shows strong potential. The identified skills in " + project.technologies_used.join(", ") + " are relevant. To improve alignment with " + companyName + ", focus on demonstrating deeper understanding of their core business domain and scaling challenges.",
-                improvements: [
-                    "Highlight specific metrics (latency, throughput) in your project descriptions.",
-                    "Explicitly mention how your architecture solves scalability problems.",
-                    "Add unit and integration tests to demonstrate reliability."
-                ],
-                differentiation: [
-                    "Contribute to open source projects related to " + companyName + "'s tech stack.",
-                    "Write a technical blog post explaining a complex problem you solved."
-                ]
-            };
+            return fallbackFeedback;
         }
     },
 
@@ -142,6 +173,11 @@ export const geminiHelper = {
      * General Chat with AI for Placement Assistance
      */
     async chatWithAI(message: string, context: string = ""): Promise<string> {
+        const genAI = getGenAI();
+        const fallbackChat = "I'm having trouble connecting right now. Please try again later.";
+
+        if (!genAI) return fallbackChat;
+
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
@@ -168,7 +204,7 @@ export const geminiHelper = {
             return result.response.text();
         } catch (error) {
             console.error("Gemini Chat Error:", error);
-            return "I'm having trouble connecting right now. Please try again later.";
+            return fallbackChat;
         }
     }
 };

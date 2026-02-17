@@ -1,10 +1,28 @@
 import OpenAI from "openai";
 
-// Initialize OpenAI API
-const openai = new OpenAI({
-    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true // Required for client-side usage
-});
+// Lazy-initialize OpenAI client to prevent crashes if API key is missing at load time
+let openaiInstance: OpenAI | null = null;
+
+const getOpenAI = () => {
+    if (openaiInstance) return openaiInstance;
+
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!apiKey) {
+        console.warn("OpenAI API key is missing. AI features will use fallbacks.");
+        return null;
+    }
+
+    try {
+        openaiInstance = new OpenAI({
+            apiKey,
+            dangerouslyAllowBrowser: true // Required for client-side usage
+        });
+        return openaiInstance;
+    } catch (error) {
+        console.error("Failed to initialize OpenAI:", error);
+        return null;
+    }
+};
 
 export interface ParsedProject {
     project_name: string;
@@ -20,6 +38,19 @@ export const aiHelper = {
      * Extracts structured project data from raw resume text using OpenAI
      */
     async extractProjects(resumeText: string): Promise<ParsedProject[]> {
+        const openai = getOpenAI();
+        if (!openai) {
+            console.log("Using manual fallback for extractProjects due to missing OpenAI client");
+            return [{
+                project_name: "Portfolio Analysis (Fallback)",
+                problem_statement: "Analyzing the provided technical skills and projects.",
+                technologies_used: ["React", "Node.js", "Python", "Data Analysis"],
+                architecture_type: "Modern Web / Data Pipeline",
+                domain: "General Technology intersection",
+                description: resumeText.slice(0, 800)
+            }];
+        }
+
         const prompt = `
         You are an expert technical recruiter.
         Analyze the following text which contains MULTIPLE PROJECTS from a student's portfolio.
@@ -86,6 +117,22 @@ export const aiHelper = {
      * Generates strategic feedback comparing a student project to company INNOVX data
      */
     async generateStrategicFeedback(project: ParsedProject, companyName: string, companyInnovxData: any): Promise<{ feedback: string, improvements: string[], differentiation: string[] }> {
+        const openai = getOpenAI();
+        const fallbackFeedback = {
+            feedback: "Based on the technical alignment, this portfolio shows strong potential. The identified skills in " + project.technologies_used.join(", ") + " are relevant. To improve alignment with " + companyName + ", focus on demonstrating deeper understanding of their core business domain and scaling challenges.",
+            improvements: [
+                "Highlight specific metrics (latency, throughput) in your project descriptions.",
+                "Explicitly mention how your architecture solves scalability problems.",
+                "Add unit and integration tests to demonstrate reliability."
+            ],
+            differentiation: [
+                "Contribute to open source projects related to " + companyName + "'s tech stack.",
+                "Write a technical blog post explaining a complex problem you solved."
+            ]
+        };
+
+        if (!openai) return fallbackFeedback;
+
         // Simplify company data string to save tokens
         const companyContext = JSON.stringify({
             name: companyName,
@@ -134,18 +181,7 @@ export const aiHelper = {
         } catch (error) {
             console.error("OpenAI Feedback Error:", error);
             // Fallback feedback
-            return {
-                feedback: "Based on the technical alignment, this portfolio shows strong potential. The identified skills in " + project.technologies_used.join(", ") + " are relevant. To improve alignment with " + companyName + ", focus on demonstrating deeper understanding of their core business domain and scaling challenges.",
-                improvements: [
-                    "Highlight specific metrics (latency, throughput) in your project descriptions.",
-                    "Explicitly mention how your architecture solves scalability problems.",
-                    "Add unit and integration tests to demonstrate reliability."
-                ],
-                differentiation: [
-                    "Contribute to open source projects related to " + companyName + "'s tech stack.",
-                    "Write a technical blog post explaining a complex problem you solved."
-                ]
-            };
+            return fallbackFeedback;
         }
     },
 
@@ -153,6 +189,11 @@ export const aiHelper = {
      * General Chat with AI for Placement Assistance
      */
     async chatWithAI(message: string, context: string = ""): Promise<string> {
+        const openai = getOpenAI();
+        const fallbackChat = "I'm having trouble connecting right now. Please try again later.";
+
+        if (!openai) return fallbackChat;
+
         const systemPrompt = `You are "CampusAI", an expert student placement assistant.
 Your goal is to help students prepare for their dream jobs.
 
@@ -176,10 +217,10 @@ INSTRUCTIONS:
                 max_tokens: 300
             });
 
-            return response.choices[0].message.content || "I'm having trouble connecting right now. Please try again later.";
+            return response.choices[0].message.content || fallbackChat;
         } catch (error) {
             console.error("OpenAI Chat Error:", error);
-            return "I'm having trouble connecting right now. Please try again later.";
+            return fallbackChat;
         }
     }
 };
