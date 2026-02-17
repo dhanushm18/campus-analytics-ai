@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Code, UserCheck, MessageCircle, Monitor, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCompanyLogo } from "@/lib/logoUtils";
 import { toast } from "@/components/ui/sonner";
 
 const roundIcons: Record<string, typeof Code> = {
@@ -106,6 +107,8 @@ export default function CompanyProcess() {
     return "N/A";
   }
 
+  const logo = getCompanyLogo(company as any);
+
   return (
     <div className="space-y-8">
       <div className="card-premium p-6 rounded-2xl elevation-sm">
@@ -116,8 +119,8 @@ export default function CompanyProcess() {
 
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center shadow-md">
-              {company.logo_url ? (
-                <img src={company.logo_url} alt={company.name} className="w-16 h-16 object-contain rounded-full" />
+              {logo ? (
+                <img src={logo} alt={company.name} className="w-16 h-16 object-contain rounded-full" />
               ) : (
                 <div className="text-2xl font-semibold text-primary">{company.short_name.charAt(0)}</div>
               )}

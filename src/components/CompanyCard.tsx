@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { MapPin, Users, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { getCompanyLogo } from "@/lib/logoUtils";
 
 interface CompanyCardProps {
     company: {
@@ -29,6 +30,7 @@ export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
     const categoryColor = categoryColors[company.category] || "bg-gray-50 text-gray-700 border-gray-200";
 
     const [imgError, setImgError] = useState(false);
+    const logo = getCompanyLogo(company);
 
     return (
         <motion.button
@@ -45,10 +47,10 @@ export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
             <div className="relative">
                 {/* Logo and Name */}
                 <div className="flex items-start gap-4 mb-4">
-                    {(company.logo_url && !imgError) ? (
+                    {(logo && !imgError) ? (
                         <div className="w-14 h-14 rounded-full border border-border/10 bg-white/70 p-2 flex items-center justify-center shrink-0 transition-transform duration-250 group-hover:scale-105">
                             <img
-                                src={company.logo_url}
+                                src={logo}
                                 alt={company.name}
                                 className="w-full h-full object-contain rounded-full"
                                 onError={() => setImgError(true)}

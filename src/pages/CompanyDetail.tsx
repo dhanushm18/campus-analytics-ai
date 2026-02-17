@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getCompanyLogo } from "@/lib/logoUtils";
 import { companyService } from "../services/companyService";
 import { CompanyFull } from "@/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -81,6 +82,7 @@ export default function CompanyDetail() {
   const [company, setCompany] = useState<CompanyFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
+  const logo = getCompanyLogo(company as any);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -138,10 +140,10 @@ export default function CompanyDetail() {
           {/* Company Header */}
           <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
             {/* Logo */}
-            {(company.logo_url && !imgError) ? (
+            {(logo && !imgError) ? (
               <div className="w-20 h-20 rounded-2xl bg-white p-3 flex items-center justify-center shadow-lg shrink-0">
                 <img
-                  src={company.logo_url}
+                  src={logo}
                   alt={company.name}
                   className="w-full h-full object-contain"
                   onError={() => setImgError(true)}

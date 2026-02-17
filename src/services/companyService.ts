@@ -281,112 +281,174 @@ export const companyService = {
 
     /**
      * Fetch skills using the relational schema: company_skill_proficiency as the primary source.
+     * Joins skill_set_master, proficiency_levels, and skill_set_topics (for Bloom's taxonomy).
      */
     async getAllCompaniesSkillsRelational() {
-        const { data, error } = await supabase
-            .from('company_skill_proficiency')
-            .select(`
-                company_id,
-                proficiency_stage_number,
-                companies ( company_id, name, short_name ),
-                proficiency_levels ( proficiency_name, proficiency_code ),
-                skill_set_master ( 
-                    skill_set_name, 
-                    skill_set_short_name,
-                    skill_set_topics (
-                        level_number,
-                        topics
+        try {
+            // Primary query: fetch skill proficiency records
+            const { data: profData, error: profError } = await supabase
+                .from('company_skill_proficiency')
+                .select(`
+                    company_id,
+                    skill_set_id,
+                    proficiency_level_id,
+                    proficiency_stage_number,
+                    companies ( company_id, name, short_name ),
+                    proficiency_levels ( proficiency_name, proficiency_code, proficiency_description ),
+                    skill_set_master ( 
+                        skill_set_id,
+                        skill_set_name, 
+                        skill_set_short_name,
+                        skill_set_description
                     )
-                )
-            `);
+                `);
 
-        if (error) {
-            console.error('Error fetching relational skills:', error);
-            return { data: [], error };
-        }
-
-        // Group by company
-        const companyMap = new Map<number, any>();
-
-        data?.forEach((row: any) => {
-            if (!row.companies) return;
-
-            const compId = row.company_id;
-            if (!companyMap.has(compId)) {
-                companyMap.set(compId, {
-                    company_id: compId,
-                    name: row.companies.name,
-                    short_name: row.companies.short_name,
-                    skills: []
-                });
+            if (profError) {
+                console.error('Error fetching skill proficiencies:', profError);
+                return { data: [], error: profError };
             }
 
-            const company = companyMap.get(compId);
+            if (!profData || profData.length === 0) {
+                return { data: [], error: null };
+            }
 
-            // Find specific topic for this level
-            // Note: skill_set_topics is an array
-            const matchingTopic = row.skill_set_master?.skill_set_topics?.find(
-                (t: any) => t.level_number === row.proficiency_stage_number
-            );
+            // Fetch all skill set topics in one query for efficiency
+            const skillSetIds = [...new Set(profData.map((row: any) => row.skill_set_id))];
+            const { data: topicsData, error: topicsError } = await supabase
+                .from('skill_set_topics')
+                .select('skill_set_id, level_number, topics')
+                .in('skill_set_id', skillSetIds);
 
-            company.skills.push({
-                code: row.skill_set_master?.skill_set_short_name,
-                name: row.skill_set_master?.skill_set_name,
-                level_name: row.proficiency_levels?.proficiency_name,
-                level_code: row.proficiency_levels?.proficiency_code,
-                stage: row.proficiency_stage_number,
-                topics: matchingTopic?.topics || ''
+            if (topicsError) {
+                console.error('Error fetching skill topics:', topicsError);
+                return { data: [], error: topicsError };
+            }
+
+            // Create a map of skill topics for quick lookup
+            const topicsMap = new Map<string, string>();
+            topicsData?.forEach((topic: any) => {
+                const key = `${topic.skill_set_id}_${topic.level_number}`;
+                topicsMap.set(key, topic.topics || '');
             });
-        });
 
-        const result = Array.from(companyMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+            // Group by company
+            const companyMap = new Map<number, any>();
 
-        return { data: result, error: null };
+            profData.forEach((row: any) => {
+                if (!row.companies) return;
+
+                const compId = row.company_id;
+                if (!companyMap.has(compId)) {
+                    companyMap.set(compId, {
+                        company_id: compId,
+                        name: row.companies.name,
+                        short_name: row.companies.short_name,
+                        skills: []
+                    });
+                }
+
+                const company = companyMap.get(compId);
+                const topicsKey = `${row.skill_set_id}_${row.proficiency_stage_number}`;
+                const topics = topicsMap.get(topicsKey) || '';
+
+                company.skills.push({
+                    code: row.skill_set_master?.skill_set_short_name || 'N/A',
+                    name: row.skill_set_master?.skill_set_name || 'Unknown Skill',
+                    description: row.skill_set_master?.skill_set_description || '',
+                    level_name: row.proficiency_levels?.proficiency_name || `Level ${row.proficiency_stage_number}`,
+                    level_code: row.proficiency_levels?.proficiency_code || '',
+                    stage: row.proficiency_stage_number || 0,
+                    topics: topics
+                });
+            });
+
+            const result = Array.from(companyMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+            return { data: result, error: null };
+        } catch (err) {
+            console.error('Unexpected error in getAllCompaniesSkillsRelational:', err);
+            return { data: [], error: err };
+        }
     },
 
     /**
-     * Fetch skills for a specific company by ID.
+     * Fetch skills for a specific company by ID with Bloom's taxonomy levels.
+     * Joins company_skill_proficiency with skill_set_master, proficiency_levels, and skill_set_topics.
      */
     async getCompanySkillsRelational(companyId: number) {
-        const { data, error } = await supabase
-            .from('company_skill_proficiency')
-            .select(`
-                proficiency_stage_number,
-                proficiency_levels ( proficiency_name, proficiency_code ),
-                skill_set_master ( 
-                    skill_set_name, 
-                    skill_set_short_name,
-                    skill_set_description,
-                    skill_set_topics (
-                        level_number,
-                        topics
+        try {
+            // Validate input
+            if (!companyId || companyId <= 0) {
+                console.warn('Invalid company ID:', companyId);
+                return { data: [], error: new Error('Invalid company ID') };
+            }
+
+            // Primary query: fetch skill proficiency records for the company
+            const { data: profData, error: profError } = await supabase
+                .from('company_skill_proficiency')
+                .select(`
+                    skill_set_id,
+                    proficiency_level_id,
+                    proficiency_stage_number,
+                    proficiency_levels ( proficiency_name, proficiency_code, proficiency_description ),
+                    skill_set_master ( 
+                        skill_set_id,
+                        skill_set_name, 
+                        skill_set_short_name,
+                        skill_set_description
                     )
-                )
-            `)
-            .eq('company_id', companyId);
+                `)
+                .eq('company_id', companyId);
 
-        if (error) {
-            console.error(`Error fetching skills for company ${companyId}:`, error);
-            return { data: [], error };
+            if (profError) {
+                console.error(`Error fetching skills for company ${companyId}:`, profError);
+                return { data: [], error: profError };
+            }
+
+            if (!profData || profData.length === 0) {
+                return { data: [], error: null };
+            }
+
+            // Fetch skill set topics for the relevant skills and levels
+            const skillSetIds = [...new Set(profData.map((row: any) => row.skill_set_id))];
+            const { data: topicsData, error: topicsError } = await supabase
+                .from('skill_set_topics')
+                .select('skill_set_id, level_number, topics')
+                .in('skill_set_id', skillSetIds);
+
+            if (topicsError) {
+                console.error(`Error fetching topics for company ${companyId}:`, topicsError);
+                return { data: [], error: topicsError };
+            }
+
+            // Create a map of skill topics keyed by "skillId_levelNumber" for O(1) lookup
+            const topicsMap = new Map<string, string>();
+            topicsData?.forEach((topic: any) => {
+                if (topic.skill_set_id && topic.level_number !== null && topic.topics) {
+                    const key = `${topic.skill_set_id}_${topic.level_number}`;
+                    topicsMap.set(key, topic.topics);
+                }
+            });
+
+            // Transform proficiency records into skill objects with Bloom's taxonomy topics
+            const skills = profData.map((row: any) => {
+                const topicsKey = `${row.skill_set_id}_${row.proficiency_stage_number}`;
+                const topics = topicsMap.get(topicsKey) || '';
+
+                return {
+                    code: row.skill_set_master?.skill_set_short_name || 'N/A',
+                    name: row.skill_set_master?.skill_set_name || 'Unknown Skill',
+                    description: row.skill_set_master?.skill_set_description || '',
+                    level_name: row.proficiency_levels?.proficiency_name || `Level ${row.proficiency_stage_number}`,
+                    level_code: row.proficiency_levels?.proficiency_code || '',
+                    stage: row.proficiency_stage_number || 0,
+                    topics: topics
+                };
+            });
+
+            return { data: skills, error: null };
+        } catch (err) {
+            console.error(`Unexpected error fetching skills for company ${companyId}:`, err);
+            return { data: [], error: err };
         }
-
-        const skills = data?.map((row: any) => {
-            // Find specific topic for this level
-            const matchingTopic = row.skill_set_master?.skill_set_topics?.find(
-                (t: any) => t.level_number === row.proficiency_stage_number
-            );
-
-            return {
-                code: row.skill_set_master?.skill_set_short_name,
-                name: row.skill_set_master?.skill_set_name,
-                description: row.skill_set_master?.skill_set_description,
-                level_name: row.proficiency_levels?.proficiency_name,
-                level_code: row.proficiency_levels?.proficiency_code,
-                stage: row.proficiency_stage_number,
-                topics: matchingTopic?.topics || ''
-            };
-        }) || [];
-
-        return { data: skills, error: null };
     }
 };

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, TrendingUp, Shield, Target, Layers, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
+import { getCompanyLogo } from "@/lib/logoUtils";
 import { toast } from "@/components/ui/sonner";
 
 const tierColors: Record<string, string> = {
@@ -57,6 +58,8 @@ export default function CompanyInnovX() {
   const tier2 = data.innovx_projects.filter(p => p.tier_level === "Tier 2");
   const tier3 = data.innovx_projects.filter(p => p.tier_level === "Tier 3");
 
+  const logo = getCompanyLogo(company as any);
+
   return (
     <div className="space-y-10">
       <div className="card-premium p-6 rounded-2xl elevation-sm">
@@ -67,9 +70,8 @@ export default function CompanyInnovX() {
 
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center shadow-md">
-              {/* logo fallback */}
-              {company.logo_url ? (
-                <img src={company.logo_url} alt={company.name} className="w-16 h-16 object-contain rounded-full" />
+              {logo ? (
+                <img src={logo} alt={company.name} className="w-16 h-16 object-contain rounded-full" />
               ) : (
                 <div className="text-2xl font-semibold text-primary">{company.short_name.charAt(0)}</div>
               )}
