@@ -23,6 +23,7 @@ import {
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Companies", url: "/companies", icon: Building2 },
+  { title: "Comparison", url: "/companies/compare", icon: GitBranch, badge: "New" },
   { title: "Prep Roadmaps", url: "/roadmap-companies", icon: Zap, badge: "AI" },
   { title: "Skills Analysis", url: "/hiring-skillsets", icon: BarChart3 },
   { title: "Hiring Process", url: "/hiring-process", icon: GitBranch },

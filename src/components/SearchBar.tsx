@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 
+import { cn } from "@/lib/utils";
+
 interface SearchResult {
     id: number;
     title: string;
@@ -16,14 +18,15 @@ interface SearchBarProps {
     onSelect: (result: SearchResult) => void;
     onSearchChange: (value: string) => void;
     value: string;
+    className?: string;  // Added className prop
 }
 
-export function SearchBar({ placeholder, results, onSelect, onSearchChange, value }: SearchBarProps) {
+export function SearchBar({ placeholder, results, onSelect, onSearchChange, value, className }: SearchBarProps) {
     const [isFocused, setIsFocused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="relative w-full max-w-2xl mx-auto">
+        <div className={cn("relative w-full max-w-2xl mx-auto", className)}>
             <motion.div
                 initial={false}
                 animate={{

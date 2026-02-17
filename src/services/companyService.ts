@@ -140,6 +140,39 @@ export const companyService = {
     },
 
     /**
+     * Fetch multiple companies by IDs (for comparison).
+     */
+    async getCompaniesByIds(companyIds: number[]) {
+        if (!companyIds.length) return { data: [], error: null };
+
+        const { data, error } = await supabase
+            .from('company_json')
+            .select('full_json, short_json, company_id')
+            .in('company_id', companyIds);
+
+        if (error) {
+            console.error('Error fetching companies by IDs:', error);
+            return { data: [], error };
+        }
+
+        const companies = data?.map((row: any) => {
+            const companyData = row.full_json as CompanyFull;
+            const shortData = row.short_json as any;
+
+            // Ensure ID is set
+            companyData.company_id = row.company_id;
+
+            // Ensure logo_url
+            if (!companyData.logo_url && shortData?.logo_url) {
+                companyData.logo_url = shortData.logo_url;
+            }
+            return companyData;
+        }) || [];
+
+        return { data: companies, error: null };
+    },
+
+    /**
      * Fetch all companies (helper for non-paginated drop-downs if needed, 
      * but generally use getCompanies for lists).
      * Capped at 1000 to prevent issues.
@@ -448,6 +481,94 @@ export const companyService = {
             return { data: skills, error: null };
         } catch (err) {
             console.error(`Unexpected error fetching skills for company ${companyId}:`, err);
+            return { data: [], error: err };
+        }
+    },
+
+    /**
+     * Fetch comprehensive company details for comparison mode using relational joins.
+     * Fetches from: companies, company_business, company_technologies, company_tech_stack, etc.
+     */
+    async getCompanyComparisonDetails(companyIds: number[]) {
+        if (!companyIds.length) return { data: [], error: null };
+
+        try {
+            // Refactored to use JSON tables as requested: company_json, company_innovx_json, company_hiring_rounds_json
+            const [
+                jsonRes,
+                innovxRes,
+                hiringRes
+            ] = await Promise.all([
+                supabase.from('company_json').select('company_id, short_json, full_json').in('company_id', companyIds),
+                supabase.from('company_innovx_json').select('company_id, innovx_data').in('company_id', companyIds),
+                supabase.from('company_hiring_rounds_json').select('company_id, hiring_data').in('company_id', companyIds)
+            ]);
+
+            if (jsonRes.error) {
+                console.error('Error fetching company json:', jsonRes.error);
+                throw jsonRes.error;
+            }
+
+            // Map and Merge Data
+            const formattedData = jsonRes.data?.map((row: any) => {
+                const companyId = row.company_id;
+                const short = row.short_json || {};
+                const full = row.full_json || {};
+
+                const innovxRow = innovxRes.data?.find((i: any) => i.company_id === companyId);
+                const hiringRow = hiringRes.data?.find((h: any) => h.company_id === companyId);
+
+                const innovxData = innovxRow?.innovx_data || {};
+                const hiringData = hiringRow?.hiring_data || {};
+
+                // Extract Details
+                const name = short.name || full.name || 'Unknown';
+                const category = short.category || full.category || 'Regular';
+                const logo = short.logo_url || full.logo_url || '';
+
+                // Extract Tech Stack (Prefer InnovX projects, fallback to full_json descriptions)
+                let techStack: string[] = ['General Tech'];
+                if (innovxData.innovx_projects?.length > 0) {
+                    const allTechs = new Set<string>();
+                    innovxData.innovx_projects.forEach((p: any) => {
+                        p.backend_technologies?.forEach((t: string) => allTechs.add(t));
+                        p.frontend_technologies?.forEach((t: string) => allTechs.add(t));
+                    });
+                    if (allTechs.size > 0) techStack = Array.from(allTechs).slice(0, 5); // Limit to top 5
+                }
+
+                // Extract Innovation Info
+                const focusArea = innovxData.innovx_master?.industry || full.nature_of_company || 'Technology';
+                const strategicPillar = innovxData.strategic_pillars?.[0]?.pillar_name ||
+                    innovxData.innovation_roadmap?.[0]?.innovation_theme ||
+                    'Growth & Expansion';
+
+                // Extract Hiring Info
+                const rounds = hiringData.job_role_details?.[0]?.hiring_rounds || [];
+
+                return {
+                    company_id: companyId,
+                    name,
+                    category,
+                    logo_url: logo,
+
+                    // Innovation / Business Data
+                    focus_area: focusArea,
+                    strategic_pillar: strategicPillar,
+                    tech_stack: techStack,
+
+                    // Hiring Stats
+                    total_rounds: rounds.length || 3,
+                    coding_rounds: rounds.filter((r: any) => r.round_category === 'Coding').length,
+                    sys_design_rounds: rounds.filter((r: any) => r.round_category === 'System Design').length,
+                    hr_rounds: rounds.filter((r: any) => r.round_category === 'HR').length
+                };
+            });
+
+            return { data: formattedData || [], error: null };
+
+        } catch (err) {
+            console.error('Unexpected error in comparison fetch:', err);
             return { data: [], error: err };
         }
     }
