@@ -12,6 +12,8 @@ const getOpenAI = () => {
         return null;
     }
 
+    console.log("OpenAI API Key detected (Prefix: " + apiKey.substring(0, 4) + "...)");
+
     try {
         openaiInstance = new OpenAI({
             apiKey,
@@ -217,7 +219,9 @@ INSTRUCTIONS:
                 max_tokens: 300
             });
 
-            return response.choices[0].message.content || fallbackChat;
+            const text = response.choices[0].message.content || fallbackChat;
+            console.log("OpenAI Chat Response received length:", text.length);
+            return text;
         } catch (error) {
             console.error("OpenAI Chat Error:", error);
             return fallbackChat;

@@ -18,6 +18,8 @@ const getOpenAI = () => {
     return null;
   }
 
+  console.log("OpenAI API Key (Roadmap) detected (Prefix: " + apiKey.substring(0, 4) + "...)");
+
   try {
     openaiInstance = new OpenAI({
       apiKey,

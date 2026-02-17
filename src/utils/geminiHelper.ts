@@ -12,6 +12,8 @@ const getGenAI = () => {
         return null;
     }
 
+    console.log("Gemini API Key detected (Prefix: " + apiKey.substring(0, 4) + "...)");
+
     try {
         genAIInstance = new GoogleGenerativeAI(apiKey);
         return genAIInstance;
@@ -201,7 +203,9 @@ export const geminiHelper = {
 
         try {
             const result = await model.generateContent(prompt);
-            return result.response.text();
+            const text = result.response.text();
+            console.log("Gemini Chat Response received length:", text.length);
+            return text;
         } catch (error) {
             console.error("Gemini Chat Error:", error);
             return fallbackChat;
