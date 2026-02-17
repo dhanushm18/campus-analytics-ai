@@ -29,7 +29,7 @@ const navItems = [
   { title: "Skills Analysis", url: "/hiring-skillsets", icon: BarChart3 },
   { title: "Hiring Process", url: "/hiring-process", icon: GitBranch },
   { title: "InnovX", url: "/innovx", icon: Rocket },
-  { title: "Company Alignment", url: "/resume-alignment", icon: BrainCircuit, badge: "AI" },
+  { title: "Company Alignment", url: "/", icon: BrainCircuit, badge: "AI" },
 ];
 
 export function AppSidebar() {

@@ -33,7 +33,10 @@ const App = () => (
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route element={<Layout />}>
+              <Route path="/" element={<ResumeAlignmentLanding />} />
+              <Route path="/resume-alignment" element={<Navigate to="/" replace />} />
+            </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route
@@ -55,7 +58,6 @@ const App = () => (
               <Route path="/hiring-skillsets" element={<HiringSkillSets />} />
               <Route path="/hiring-process" element={<HiringProcess />} />
               <Route path="/innovx" element={<InnovX />} />
-              <Route path="/resume-alignment" element={<ResumeAlignmentLanding />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
