@@ -21,6 +21,7 @@ import InnovX from "@/pages/InnovX";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
+import ResumeAlignmentLanding from "@/pages/ResumeAlignmentLanding";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/hiring-skillsets" element={<HiringSkillSets />} />
               <Route path="/hiring-process" element={<HiringProcess />} />
               <Route path="/innovx" element={<InnovX />} />
+              <Route path="/resume-alignment" element={<ResumeAlignmentLanding />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

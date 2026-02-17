@@ -1,11 +1,18 @@
 /**
- * Gemini AI Service - Optional AI enhancement for roadmap generation
- * Uses Gemini API to generate personalized preparation strategies
+ * OpenAI Service - AI enhancement for roadmap generation
+ * Uses OpenAI GPT-3.5-turbo to generate personalized preparation strategies
  */
 
+import OpenAI from "openai";
 import type { SkillGap, RoadmapOutput } from '@/utils/roadmapEngine';
 
-interface GeminiRoadmapRequest {
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+});
+
+interface AIRoadmapRequest {
   companyName: string;
   skillGaps: SkillGap[];
   availableWeeks: number;
@@ -17,7 +24,7 @@ interface GeminiRoadmapRequest {
   };
 }
 
-interface GeminiEnhancedPlan {
+interface AIEnhancedPlan {
   overview: string;
   weeklyPlan: Array<{
     week: number;
@@ -31,9 +38,7 @@ interface GeminiEnhancedPlan {
   motivationalTips: string[];
 }
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-
-function buildGeminiPrompt(request: GeminiRoadmapRequest): string {
+function buildPrompt(request: AIRoadmapRequest): string {
   const skillSummary = request.skillGaps
     .slice(0, 5)
     .map(s => `${s.skillCode}: Gap of ${s.gap.toFixed(1)} levels (from ${s.studentRating}/10 to ${s.companyRating}/5)`)
@@ -64,12 +69,15 @@ Make it actionable, specific, and achievable within the timeframe. Focus on prog
 Format your response as valid JSON only, no markdown or extra text.`;
 }
 
-function parseGeminiResponse(responseText: string): GeminiEnhancedPlan | null {
+function parseAIResponse(responseText: string): AIEnhancedPlan | null {
   try {
+    // Remove markdown code blocks if present
+    const cleanedText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
     // Try to extract JSON from response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error('No JSON found in Gemini response');
+      console.error('No JSON found in AI response');
       return null;
     }
 
@@ -77,7 +85,7 @@ function parseGeminiResponse(responseText: string): GeminiEnhancedPlan | null {
 
     // Validate required fields
     if (!parsed.overview || !Array.isArray(parsed.weeklyPlan)) {
-      console.error('Invalid Gemini response structure');
+      console.error('Invalid AI response structure');
       return null;
     }
 
@@ -88,67 +96,50 @@ function parseGeminiResponse(responseText: string): GeminiEnhancedPlan | null {
       motivationalTips: parsed.motivationalTips || []
     };
   } catch (error) {
-    console.error('Error parsing Gemini response:', error);
+    console.error('Error parsing AI response:', error);
     return null;
   }
 }
 
 /**
- * Call Gemini API to generate AI-enhanced roadmap
+ * Call OpenAI API to generate AI-enhanced roadmap
  */
 export async function generateAIEnhancedRoadmap(
-  request: GeminiRoadmapRequest
-): Promise<GeminiEnhancedPlan | null> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  request: AIRoadmapRequest
+): Promise<AIEnhancedPlan | null> {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
   if (!apiKey) {
-    console.warn('Gemini API key not configured. Skipping AI enhancement.');
+    console.warn('OpenAI API key not configured. Skipping AI enhancement.');
     return null;
   }
 
   try {
-    const prompt = buildGeminiPrompt(request);
+    const prompt = buildPrompt(request);
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert career coach specializing in technical interview preparation. Always respond with valid JSON only, no markdown formatting."
         },
-      })
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 2048
     });
 
-    if (!response.ok) {
-      console.error(`Gemini API error: ${response.status} ${response.statusText}`);
+    const responseText = response.choices[0].message.content;
+
+    if (!responseText) {
+      console.error('Empty response from OpenAI');
       return null;
     }
 
-    const data = await response.json();
-
-    if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
-      console.error('Unexpected Gemini response format');
-      return null;
-    }
-
-    const responseText = data.candidates[0].content.parts[0].text;
-    return parseGeminiResponse(responseText);
+    return parseAIResponse(responseText);
   } catch (error) {
-    console.error('Error calling Gemini API:', error);
+    console.error('Error calling OpenAI API:', error);
     return null;
   }
 }
@@ -159,7 +150,7 @@ export async function generateAIEnhancedRoadmap(
 export function generateFallbackEnhancedPlan(
   roadmap: RoadmapOutput,
   companyName: string
-): GeminiEnhancedPlan {
+): AIEnhancedPlan {
   return {
     overview: `This is a deterministic preparation plan for ${companyName}. You are currently ${roadmap.readinessScore}% ready. The roadmap focuses on closing skill gaps in order of priority and importance.`,
     weeklyPlan: roadmap.weeklyPlan.map((week, idx) => ({

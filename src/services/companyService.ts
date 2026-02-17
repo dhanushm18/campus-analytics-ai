@@ -191,6 +191,24 @@ export const companyService = {
         return { data: data?.map((row: any) => row.short_json) || [], error: null };
     },
 
+    /**
+     * Fetch InnovX data for a single company
+     */
+    async getCompanyInnovData(id: number) {
+        const { data, error } = await supabase
+            .from('company_innovx_json')
+            .select('innovx_data')
+            .eq('company_id', id)
+            .single();
+
+        if (error) {
+            console.error('Error fetching company innovx data:', error);
+            return { data: null, error };
+        }
+
+        return { data: data.innovx_data, error: null };
+    },
+
     async getDashboardStats() {
         try {
             // Fetch Total and Enterprise counts from DB directly

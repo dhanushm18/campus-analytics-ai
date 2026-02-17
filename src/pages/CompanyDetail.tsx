@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getCompanyLogo } from "@/lib/logoUtils";
 import { companyService } from "../services/companyService";
@@ -76,26 +76,46 @@ const categoryColors: Record<string, string> = {
   Enterprise: "bg-orange-500 text-white",
 };
 
+import ResumeAlignment from "./ResumeAlignment";
+
+// ... existing imports ...
+
 export default function CompanyDetail() {
   const { companyId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [company, setCompany] = useState<CompanyFull | null>(null);
+  const [innovxData, setInnovxData] = useState<any>(null); // State for InnovX Data
   const [loading, setLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
   const logo = getCompanyLogo(company as any);
-  const [activeTab, setActiveTab] = useState("overview");
+
+  // Check if we were redirected with a specific tab in mind
+  const initialTab = location.state?.initialTab || "overview";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     async function fetchCompany() {
       if (!companyId) return;
       setLoading(true);
-      const { data, error } = await companyService.getCompanyById(Number(companyId));
-      if (error) {
+
+      // Fetch Company Details AND InnovX Data
+      const [companyRes, innovxRes] = await Promise.all([
+        companyService.getCompanyById(Number(companyId)),
+        companyService.getCompanyInnovData(Number(companyId))
+      ]);
+
+      if (companyRes.error) {
         toast.error("Failed to load company details");
-        console.error(error);
+        console.error(companyRes.error);
       } else {
-        setCompany(data);
+        setCompany(companyRes.data);
       }
+
+      if (innovxRes.data) {
+        setInnovxData(innovxRes.data);
+      }
+
       setLoading(false);
     }
     fetchCompany();
@@ -221,7 +241,7 @@ export default function CompanyDetail() {
       {/* Animated Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="sticky top-16 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 -mx-6 lg:-mx-10 px-6 lg:px-10 mb-8">
-          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0">
+          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0 overflow-x-auto no-scrollbar">
             {Object.entries(SECTION_MAP).map(([key, section]) => (
               <TabsTrigger
                 key={key}
@@ -237,6 +257,18 @@ export default function CompanyDetail() {
                 {section.label}
               </TabsTrigger>
             ))}
+            <TabsTrigger
+              value="resume-alignment"
+              className={`
+                  relative px-4 py-3 rounded-none border-b-2 border-transparent
+                  data-[state=active]:border-primary data-[state=active]:text-primary
+                  data-[state=active]:bg-transparent
+                  hover:text-foreground transition-all duration-200
+                  ${activeTab === 'resume-alignment' ? 'font-semibold' : 'font-medium'}
+                `}
+            >
+              Company Alignment
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -263,6 +295,14 @@ export default function CompanyDetail() {
             </motion.div>
           </TabsContent>
         ))}
+
+        <TabsContent value="resume-alignment" className="mt-0">
+          <ResumeAlignment
+            companyId={Number(companyId)}
+            companyInnovxData={innovxData}
+            companyName={company.name}
+          />
+        </TabsContent>
       </Tabs>
     </div>
   );

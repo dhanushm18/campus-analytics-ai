@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Chatbot } from "@/components/Chatbot";
 
 const ctcTiers = [
   {
@@ -364,8 +365,8 @@ export default function Dashboard() {
                         {news.date}
                       </span>
                       <span className={`px-1.5 py-0.5 rounded font-medium border ${news.type === 'Hiring' ? 'bg-green-500/10 text-green-600 border-green-500/20' :
-                          news.type === 'Deadline' ? 'bg-red-500/10 text-red-600 border-red-500/20' :
-                            'bg-blue-500/10 text-blue-600 border-blue-500/20'
+                        news.type === 'Deadline' ? 'bg-red-500/10 text-red-600 border-red-500/20' :
+                          'bg-blue-500/10 text-blue-600 border-blue-500/20'
                         }`}>
                         {news.type}
                       </span>
@@ -384,6 +385,9 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      {/* AI Assistant */}
+      <Chatbot />
     </div>
   );
 }
