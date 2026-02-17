@@ -1,73 +1,84 @@
-# Welcome to your Lovable project
+# 🎓 Campus Analytics AI  
+### PES Placements & Research Intelligence Platform  
 
-## Project info
+🔗 **Live Deployment:**  
+https://campus-analytics-ai.vercel.app/dashboard  
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## 🚀 Overview
 
-There are several ways of editing your application.
+Campus Analytics AI is a premium, enterprise-grade placement intelligence platform designed to transform raw placement data into structured career intelligence.
 
-**Use Lovable**
+It provides:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- 📊 Real-time placement analytics  
+- 🏢 Company intelligence dashboards  
+- 🧠 Skill expectation comparison across recruiters  
+- 📌 Transparent hiring process visualization  
+- 🚀 Innovation insights through the INNOVX engine  
 
-Changes made via Lovable will be committed automatically to this repo.
+This platform goes beyond placement tracking — it enables strategic preparation.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠 Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+This project is built using modern, production-ready technologies:
 
-Follow these steps:
+- ⚡ Vite  
+- 🟦 TypeScript  
+- ⚛️ React  
+- 🎨 Tailwind CSS  
+- 🧩 shadcn-ui  
+- 🗄 Supabase (Backend & Database)  
+- ▲ Vercel (Deployment)  
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+---
+
+## 📂 Core Modules
+
+### 🏠 Dashboard
+- Placement ecosystem summary  
+- Company category analytics  
+- Smart company search  
+
+### 🏢 Companies
+- Clean, structured company profiles  
+- Category-based filtering  
+- Premium card-based UI  
+
+### 📊 Hiring Skill Set Comparison
+- Cross-company comparison matrix  
+- Bloom’s taxonomy cognitive depth indicators  
+- Interactive heatmap-style grid  
+
+### 📌 Hiring Process
+- End-to-end hiring round timeline  
+- Skill focus per round  
+- Narrative vertical process visualization  
+
+### 🚀 INNOVX (Innovation Accelerator)
+- Industry trends analysis  
+- Competitive landscape insights  
+- Strategic innovation pillars  
+- Tiered student project ideas  
+
+---
+
+## 🖥 Local Development
+
+Ensure Node.js (v18+) is installed.
+
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate into the project folder
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run development server
 npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
