@@ -34,9 +34,9 @@ export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
         <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay, duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ delay, duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
             onClick={onClick}
-            className="group w-full text-left rounded-xl border border-border/50 bg-card p-6 transition-all duration-250 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20 cursor-pointer relative overflow-hidden"
+            className="group w-full text-left card-premium p-6 transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer relative overflow-hidden"
         >
             {/* Gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
@@ -46,16 +46,16 @@ export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
                 {/* Logo and Name */}
                 <div className="flex items-start gap-4 mb-4">
                     {(company.logo_url && !imgError) ? (
-                        <div className="w-14 h-14 rounded-xl border border-border/10 bg-white p-2 flex items-center justify-center shrink-0 transition-transform duration-250 group-hover:scale-110">
+                        <div className="w-14 h-14 rounded-full border border-border/10 bg-white/70 p-2 flex items-center justify-center shrink-0 transition-transform duration-250 group-hover:scale-105">
                             <img
                                 src={company.logo_url}
                                 alt={company.name}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-contain rounded-full"
                                 onError={() => setImgError(true)}
                             />
                         </div>
                     ) : (
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center font-semibold text-xl text-primary shrink-0 transition-transform duration-250 group-hover:scale-110">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center font-semibold text-xl text-primary shrink-0 transition-transform duration-250 group-hover:scale-105">
                             {company.short_name.charAt(0)}
                         </div>
                     )}
@@ -63,7 +63,7 @@ export function CompanyCard({ company, onClick, delay = 0 }: CompanyCardProps) {
                         <h3 className="font-semibold text-base text-foreground truncate mb-1.5 group-hover:text-primary transition-colors">
                             {company.name}
                         </h3>
-                        <Badge variant="outline" className={`text-xs font-medium ${categoryColor}`}>
+                        <Badge variant="outline" className={`text-xs font-medium ${categoryColor} px-2 py-1 rounded-full` }>
                             {company.category}
                         </Badge>
                     </div>

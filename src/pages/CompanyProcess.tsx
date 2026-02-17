@@ -82,94 +82,151 @@ export default function CompanyProcess() {
 
   const roles = company.job_role_details;
 
+  // Helper to format compensation display for a role
+  function formatCompensation(role: any) {
+    const comp = role.compensation;
+    const raw = role.ctc_or_stipend;
+    const num = Number(raw);
+
+    if (comp && String(comp).trim().length > 0) {
+      if (String(comp).toLowerCase().includes("ctc") && !isNaN(num) && num > 0) {
+        return `${String(comp)} • ₹${(num / 100000).toFixed(1)}L`;
+      }
+      if (String(comp).toLowerCase().includes("stipend") && !isNaN(num) && num > 0) {
+        return `${String(comp)} • ₹${(num / 1000).toFixed(0)}/mo`;
+      }
+      return String(comp);
+    }
+
+    if (!isNaN(num) && num > 0) {
+      // assume annual CTC unless stated otherwise
+      return `₹${(num / 100000).toFixed(1)}L`;
+    }
+
+    return "N/A";
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(`/companies/${companyId}`)}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="heading-display">{company.short_name} — Hiring Process</h1>
-          <p className="text-sm text-muted-foreground">{roles.length} role(s) with detailed hiring rounds</p>
+    <div className="space-y-8">
+      <div className="card-premium p-6 rounded-2xl elevation-sm">
+        <div className="flex items-start gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/companies/${companyId}`)}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center shadow-md">
+              {company.logo_url ? (
+                <img src={company.logo_url} alt={company.name} className="w-16 h-16 object-contain rounded-full" />
+              ) : (
+                <div className="text-2xl font-semibold text-primary">{company.short_name.charAt(0)}</div>
+              )}
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-semibold leading-tight text-foreground">{company.name}</h1>
+              <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
+                <div>{roles.length} role(s)</div>
+                <div className="h-4 w-px bg-border/50" />
+                <div>Hiring rounds: <span className="font-medium text-foreground ml-1">{roles.reduce((sum, r) => sum + (r.hiring_rounds?.length || 0), 0)}</span></div>
+              </div>
+              <div className="mt-3 text-sm text-muted-foreground max-w-2xl">{company.overview_text ? company.overview_text.slice(0, 220) + (company.overview_text.length>220? '…':'') : ''}</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {roles.map((role, ri) => (
-        <div key={ri} className="space-y-4">
-          <div className="rounded-xl border bg-card p-5">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
-              <h2 className="font-heading font-semibold text-base">{role.role_title}</h2>
-              <Badge variant="secondary" className="w-fit">₹{(role.ctc_or_stipend / 100000).toFixed(1)}L {role.compensation || 'CTC'}</Badge>
-            </div>
-            <p className="text-sm text-muted-foreground line-clamp-2">{role.job_description}</p>
-          </div>
+          {roles.map((role, ri) => (
+            <div key={ri} className="grid grid-cols-1 lg:grid-cols-[72px_1fr] gap-6">
+              <div className="relative">
+                <div className="timeline-line left-6 top-6" />
+                <div className="timeline-node left-3 top-6" aria-hidden />
+              </div>
 
-          {/* Timeline */}
-          <div className="relative ml-6 border-l-2 border-border pl-8 space-y-6">
-            {role.hiring_rounds.map((round, idx) => {
-              const Icon = roundIcons[round.round_category] || Monitor;
-              const key = `${ri}-${idx}`;
-              const isOpen = expandedRound === key;
+              <div className="space-y-4">
+                <div className="card-premium p-5 rounded-xl elevation-sm">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                    <div className="min-w-0">
+                      <h2 className="heading-subsection truncate">{role.role_title}</h2>
+                      <div className="mt-2 text-sm text-muted-foreground line-clamp-3">{role.job_description}</div>
 
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.08 }}
-                  className="relative"
-                >
-                  {/* Timeline dot */}
-                  <div className="absolute -left-[2.55rem] top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-primary-foreground text-[10px] font-bold">{round.round_number}</span>
-                  </div>
-
-                  <button
-                    onClick={() => setExpandedRound(isOpen ? null : key)}
-                    className="w-full text-left rounded-lg border bg-card p-4 card-hover"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-heading font-semibold text-sm">{round.round_name}</span>
-                        <Badge variant="outline" className="text-[10px]">{round.evaluation_type}</Badge>
-                        <Badge variant="outline" className="text-[10px]">{round.assessment_mode}</Badge>
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                        {role.opportunity_type && <div className="px-2 py-1 bg-muted/10 rounded-full">{role.opportunity_type}</div>}
+                        {role.role_category && <div className="px-2 py-1 bg-muted/10 rounded-full">{role.role_category}</div>}
+                        {role.bonus && <div className="px-2 py-1 bg-muted/10 rounded-full line-clamp-1">{role.bonus}</div>}
                       </div>
-                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
                     </div>
-                  </button>
 
-                  <AnimatePresence>
-                    {isOpen && (
+                    <div className="flex-shrink-0">
+                      <Badge variant="secondary" className="text-sm px-3 py-1 rounded-full">{formatCompensation(role)}</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative pl-6">
+                  {role.hiring_rounds.map((round, idx) => {
+                    const Icon = roundIcons[round.round_category] || Monitor;
+                    const key = `${ri}-${idx}`;
+                    const isOpen = expandedRound === key;
+
+                    return (
                       <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
+                        key={idx}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.06 }}
+                        className="relative"
                       >
-                        <div className="border border-t-0 rounded-b-lg p-4 space-y-4 bg-muted/30">
-                          {round.skill_sets.map((skill, si) => (
-                            <div key={si}>
-                              <div className="label-caption mb-2">{skill.skill_set_code}</div>
-                              <div className="space-y-2">
-                                {skill.typical_questions.split(";").map((q, qi) => (
-                                  <div key={qi} className="text-sm bg-card rounded-md border px-3 py-2 italic text-muted-foreground">
-                                    "{q.trim()}"
-                                  </div>
-                                ))}
+                        <div className="absolute -left-10 top-4 w-8 h-8 rounded-full bg-card shadow-sm flex items-center justify-center border border-border">
+                          <span className="text-sm text-muted-foreground">{round.round_number}</span>
+                        </div>
+
+                        <button
+                          onClick={() => setExpandedRound(isOpen ? null : key)}
+                          className="w-full text-left card-premium p-4 rounded-lg transition-smooth"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Icon className="h-5 w-5 text-primary" />
+                              <div>
+                                <div className="font-semibold text-sm">{round.round_name}</div>
+                                <div className="text-xs text-muted-foreground">{round.evaluation_type} · {round.assessment_mode}</div>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                            <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                          </div>
+                        </button>
+
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="mt-3 border border-t-0 rounded-b-lg p-4 space-y-4 bg-muted/20">
+                                <div className="flex flex-wrap gap-2">
+                                  {round.skill_sets.map((skill, si) => (
+                                    <Badge key={si} variant="secondary" className="text-sm px-2 py-1 rounded-full" title={skill.skill_set_code}>{skill.skill_set_code}</Badge>
+                                  ))}
+                                </div>
+
+                                <div className="space-y-2">
+                                  {round.skill_sets.flatMap(s => s.typical_questions.split(";")).map((q, qi) => (
+                                    <div key={qi} className="text-sm bg-card rounded-md border px-3 py-2 italic text-muted-foreground">{q.trim()}</div>
+                                  ))}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
     </div>
   );
 }

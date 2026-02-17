@@ -4,6 +4,7 @@ import { companyService } from "../services/companyService";
 import { CompanyShort } from "@/data";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { CompanyCard } from "@/components/CompanyCard";
 import { toast } from "@/components/ui/sonner";
 
 export default function HiringProcess() {
@@ -36,27 +37,32 @@ export default function HiringProcess() {
   if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-8">
+      <div className="gradient-hero card-premium p-6 rounded-2xl elevation-sm">
         <h1 className="heading-display">Hiring Process</h1>
-        <p className="text-sm text-muted-foreground mt-1">Select a company to view its hiring process</p>
+        <p className="text-base text-muted-foreground mt-2 max-w-2xl">Explore detailed hiring workflows, rounds and required skills for companies. Select a company to view its narrative timeline and round-level breakdowns.</p>
       </div>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search companies..." className="pl-10 h-10" value={search} onChange={e => setSearch(e.target.value)} />
+      <div className="flex justify-center">
+        <div className="relative w-full max-w-2xl">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Search companies by name or short name..."
+            className="pl-12 h-14 rounded-xl shadow-sm"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map(c => (
-          <button
+          <CompanyCard
             key={c.company_id}
+            company={c as any}
+            delay={0}
             onClick={() => navigate(`/companies/${c.company_id}/process`)}
-            className="rounded-lg border bg-card p-4 text-left card-hover cursor-pointer"
-          >
-            <div className="font-heading font-semibold text-sm">{c.short_name}</div>
-            <div className="text-xs text-muted-foreground mt-1">{c.name}</div>
-          </button>
+          />
         ))}
       </div>
     </div>

@@ -10,12 +10,12 @@ import { SearchBar } from "@/components/SearchBar";
 import { Badge } from "@/components/ui/badge";
 
 const categoryConfig = [
-  { key: "total", label: "Total Companies", icon: Building2, param: "", color: "bg-primary text-primary-foreground" },
-  { key: "marquee", label: "Marquee", icon: Crown, param: "Marquee", color: "bg-red-500 text-white" },
-  { key: "superdream", label: "Super Dream", icon: Sparkles, param: "SuperDream", color: "bg-purple-500 text-white" },
-  { key: "dream", label: "Dream", icon: Star, param: "Dream", color: "bg-teal-500 text-white" },
-  { key: "regular", label: "Regular", icon: Users, param: "Regular", color: "bg-gray-500 text-white" },
-  { key: "enterprise", label: "Enterprise", icon: Briefcase, param: "Enterprise", color: "bg-orange-500 text-white" },
+  { key: "total", label: "Total Companies", icon: Building2, logoUrl: '/metrics/total.svg', param: "", color: "bg-primary text-primary-foreground" },
+  { key: "marquee", label: "Marquee", icon: Crown, logoUrl: '/metrics/marquee.svg', param: "Marquee", color: "bg-red-500 text-white" },
+  { key: "superdream", label: "Super Dream", icon: Sparkles, logoUrl: '/metrics/superdream.svg', param: "SuperDream", color: "bg-purple-500 text-white" },
+  { key: "dream", label: "Dream", icon: Star, logoUrl: '/metrics/dream.svg', param: "Dream", color: "bg-teal-500 text-white" },
+  { key: "regular", label: "Regular", icon: Users, logoUrl: '/metrics/regular.svg', param: "Regular", color: "bg-gray-500 text-white" },
+  { key: "enterprise", label: "Enterprise", icon: Briefcase, logoUrl: '/metrics/enterprise.svg', param: "Enterprise", color: "bg-orange-500 text-white" },
 ] as const;
 
 const ctcCategories = [
@@ -128,7 +128,16 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-12 animate-fade-in">
-      {/* Hero Section Moved to Global Header */}
+      {/* Hero Section */}
+      <div className="gradient-hero card-premium p-6 md:p-8 rounded-2xl elevation-sm">
+        <div className="md:flex md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="heading-display">Welcome to Placement Intelligence</h1>
+            <p className="text-base text-muted-foreground mt-2 max-w-2xl">Strategic hiring insights, curated company intelligence, and actionable recommendations to support placement decisions.</p>
+            <div className="mt-3 text-sm text-muted-foreground">Dataset: <span className="font-medium text-foreground ml-2">{counts.total ?? 0} companies</span></div>
+          </div>
+        </div>
+      </div>
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6">
@@ -138,6 +147,7 @@ export default function Dashboard() {
             label={cat.label}
             value={counts[cat.key as keyof typeof counts]}
             icon={cat.icon}
+            logoUrl={cat.logoUrl}
             color={cat.color}
             delay={i * 0.08}
             onClick={() => navigate(cat.param ? `/companies?category=${cat.param}` : "/companies")}
@@ -179,20 +189,20 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
-                className={`group relative rounded-2xl border border-border/50 bg-gradient-to-br ${category.bgGradient} p-6 shadow-sm hover:shadow-xl transition-all duration-250 hover:-translate-y-1 cursor-pointer`}
+                className={`group relative card-premium p-6 rounded-2xl elevation-sm transition-all duration-250 cursor-pointer`}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl ${category.color} text-white flex items-center justify-center transition-transform duration-250 group-hover:scale-110`}>
-                    <Icon className="h-6 w-6" />
+                  <div className={`w-12 h-12 rounded-full ${category.color} text-white flex items-center justify-center transition-transform duration-250 group-hover:scale-105`}>
+                    <Icon className="h-5 w-5" />
                   </div>
                   <Badge variant="outline" className={category.badgeColor}>{category.badge}</Badge>
                 </div>
-                <p className={`text-2xl font-bold ${category.textColor} mb-2`}>{category.range}</p>
+                <p className={`text-2xl font-semibold ${category.textColor} mb-2`}>{category.range}</p>
                 <p className="text-sm text-muted-foreground mb-3">{category.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{count} {count === 1 ? 'company' : 'companies'}</span>
                 </div>
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.hoverGradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250 rounded-2xl`} />
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-250 rounded-2xl`} />
               </motion.div>
             );
           })}

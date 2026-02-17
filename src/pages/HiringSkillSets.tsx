@@ -163,23 +163,29 @@ export default function HiringSkillSets() {
             />
           </div>
 
-          {/* Stage Filter */}
-          <Select value={stageFilter} onValueChange={setStageFilter}>
-            <SelectTrigger className="w-[200px] h-10">
-              <SelectValue placeholder="All Stages" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Proficiency Stages</SelectItem>
-              <SelectItem value="1">Stage 1+ (Conceptual)</SelectItem>
-              <SelectItem value="2">Stage 2+ (Application)</SelectItem>
-              <SelectItem value="3">Stage 3+ (Analysis)</SelectItem>
-              <SelectItem value="4">Stage 4+ (Evaluation)</SelectItem>
-              <SelectItem value="5">Stage 5+ (Creation)</SelectItem>
-              <SelectItem value="6">Stage 6+ (Mastery)</SelectItem>
-              <SelectItem value="8">Stage 8+ (Leadership)</SelectItem>
-              <SelectItem value="10">Stage 10 (Pinnacle)</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Stage Filter - simplified pill buttons for reliability */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {[
+              { value: 'all', label: 'All' },
+              { value: '1', label: '1+' },
+              { value: '2', label: '2+' },
+              { value: '3', label: '3+' },
+              { value: '4', label: '4+' },
+              { value: '5', label: '5+' },
+              { value: '6', label: '6+' },
+              { value: '8', label: '8+' },
+              { value: '10', label: '10' },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setStageFilter(opt.value)}
+                aria-pressed={stageFilter === opt.value}
+                className={`px-3 py-1 rounded-full text-sm transition-colors ${stageFilter === opt.value ? 'pill-highlight' : 'bg-muted/10 text-muted-foreground'}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Legend */}
