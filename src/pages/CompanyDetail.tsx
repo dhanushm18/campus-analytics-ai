@@ -6,7 +6,7 @@ import { CompanyFull } from "@/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Users, Calendar, ExternalLink, BarChart3, GitBranch, Rocket, ArrowLeft, Building2, TrendingUp } from "lucide-react";
+import { MapPin, Users, Calendar, ExternalLink, BarChart3, GitBranch, Rocket, ArrowLeft, Building2, TrendingUp, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/sonner";
 
@@ -203,6 +203,14 @@ export default function CompanyDetail() {
                 >
                   <Rocket className="h-4 w-4 mr-2" />
                   InnovX
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/companies/${companyId}/roadmap`)}
+                  className="rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-smooth bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20"
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  Prep Roadmap
                 </Button>
               </div>
             </div>

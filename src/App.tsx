@@ -12,6 +12,8 @@ import CompanyDetail from "@/pages/CompanyDetail";
 import CompanySkills from "@/pages/CompanySkills";
 import CompanyProcess from "@/pages/CompanyProcess";
 import CompanyInnovX from "@/pages/CompanyInnovX";
+import CompanyRoadmap from "@/pages/CompanyRoadmap";
+import RoadmapCompanies from "@/pages/RoadmapCompanies";
 import HiringSkillSets from "@/pages/HiringSkillSets";
 import HiringProcess from "@/pages/HiringProcess";
 import InnovX from "@/pages/InnovX";
@@ -45,6 +47,8 @@ const App = () => (
               <Route path="/companies/:companyId/skills" element={<CompanySkills />} />
               <Route path="/companies/:companyId/process" element={<CompanyProcess />} />
               <Route path="/companies/:companyId/innovx" element={<CompanyInnovX />} />
+              <Route path="/companies/:companyId/roadmap" element={<CompanyRoadmap />} />
+              <Route path="/roadmap-companies" element={<RoadmapCompanies />} />
               <Route path="/hiring-skillsets" element={<HiringSkillSets />} />
               <Route path="/hiring-process" element={<HiringProcess />} />
               <Route path="/innovx" element={<InnovX />} />

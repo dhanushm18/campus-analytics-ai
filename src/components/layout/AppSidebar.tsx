@@ -5,6 +5,7 @@ import {
   GitBranch,
   Rocket,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -22,6 +23,7 @@ import {
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Companies", url: "/companies", icon: Building2 },
+  { title: "Prep Roadmaps", url: "/roadmap-companies", icon: Zap, badge: "AI" },
   { title: "Skills Analysis", url: "/hiring-skillsets", icon: BarChart3 },
   { title: "Hiring Process", url: "/hiring-process", icon: GitBranch },
   { title: "InnovX", url: "/innovx", icon: Rocket },
@@ -62,7 +64,9 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {navItems.map((item) => {
-                const isActive = location.pathname.startsWith(item.url);
+                const isActive = item.title === "Prep Roadmaps"
+                  ? location.pathname.includes('/roadmap')
+                  : location.pathname.startsWith(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -77,10 +81,17 @@ export function AppSidebar() {
                         }
                       `}
                     >
-                      <NavLink to={item.url}>
-                        <item.icon className={`h-4 w-4 ${isActive ? 'text-primary' : ''}`} />
-                        <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-                      </NavLink>
+                      <div className="flex items-center w-full">
+                        <NavLink to={item.url} className="flex items-center flex-1 gap-2">
+                          <item.icon className={`h-4 w-4 ${isActive ? 'text-primary' : ''}`} />
+                          <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        </NavLink>
+                        {item.badge && (
+                          <span className="group-data-[collapsible=icon]:hidden ml-auto text-xs font-bold px-2 py-0.5 rounded bg-gradient-to-r from-primary/20 to-accent/20 text-primary">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
