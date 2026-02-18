@@ -4,7 +4,7 @@ import { companyService } from "../services/companyService";
 import { CompanyFull } from "@/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Code, UserCheck, MessageCircle, Monitor, ChevronDown } from "lucide-react";
+import { ArrowLeft, Code, UserCheck, MessageCircle, Monitor, ChevronDown, Clock, Briefcase, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCompanyLogo } from "@/lib/logoUtils";
 import { toast } from "@/components/ui/sonner";
@@ -29,10 +29,7 @@ export default function CompanyProcess() {
       const { data, error } = await companyService.getCompanyById(Number(companyId));
       if (error) {
         toast.error("Failed to load company details");
-        console.error(error);
       } else {
-        console.log("Fetched company data:", data);
-        console.log("Job role details:", data?.job_role_details);
         setCompany(data);
       }
       setLoading(false);
@@ -53,183 +50,197 @@ export default function CompanyProcess() {
 
   if (!company) return <div className="text-center py-20 text-muted-foreground">Company not found</div>;
 
-  // Check if hiring data is available
-  if (!company.job_role_details || company.job_role_details.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/companies/${companyId}`)}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="heading-display">{company.short_name} — Hiring Process</h1>
-          </div>
-        </div>
-        <div className="text-center py-20">
-          <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h3 className="heading-subsection mb-2">No Hiring Data Available</h3>
-          <p className="text-sm text-muted-foreground mb-6">
-            Hiring process information is not available for this company yet.
-          </p>
-          <Button onClick={() => navigate(`/companies/${companyId}`)}>
-            Back to Company Details
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const roles = company.job_role_details;
-
-  // Helper to format compensation display for a role
-  function formatCompensation(role: any) {
-    const comp = role.compensation;
-    const raw = role.ctc_or_stipend;
-    const num = Number(raw);
-
-    if (comp && String(comp).trim().length > 0) {
-      if (String(comp).toLowerCase().includes("ctc") && !isNaN(num) && num > 0) {
-        return `${String(comp)} • ₹${(num / 100000).toFixed(1)}L`;
-      }
-      if (String(comp).toLowerCase().includes("stipend") && !isNaN(num) && num > 0) {
-        return `${String(comp)} • ₹${(num / 1000).toFixed(0)}/mo`;
-      }
-      return String(comp);
-    }
-
-    if (!isNaN(num) && num > 0) {
-      // assume annual CTC unless stated otherwise
-      return `₹${(num / 100000).toFixed(1)}L`;
-    }
-
-    return "N/A";
-  }
-
   const logo = getCompanyLogo(company as any);
+  const roles = company.job_role_details || [];
 
   return (
-    <div className="space-y-8">
-      <div className="card-premium p-6 rounded-2xl elevation-sm">
-        <div className="flex items-start gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/companies/${companyId}`)}>
-            <ArrowLeft className="h-4 w-4" />
+    <div className="min-h-screen bg-background animate-fade-in pb-20 pt-6 px-4 md:px-8 max-w-[1600px] mx-auto">
+
+      {/* Header */}
+      <div className="relative mb-12">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent -z-10 rounded-3xl" />
+
+        <div className="relative px-6 py-10 md:px-10">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(`/companies/${companyId}`)}
+            className="mb-6 hover:bg-background/80 transition-smooth group"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+            Back to Company
           </Button>
 
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center shadow-md">
+          <div className="flex flex-col md:flex-row md:items-start gap-8">
+            <div className="w-24 h-24 rounded-2xl bg-white p-4 shadow-xl border border-border/20 flex items-center justify-center shrink-0">
               {logo ? (
-                <img src={logo} alt={company.name} className="w-16 h-16 object-contain rounded-full" />
+                <img src={logo} alt={company.name} className="w-full h-full object-contain" />
               ) : (
-                <div className="text-2xl font-semibold text-primary">{company.short_name.charAt(0)}</div>
+                <div className="text-3xl font-bold text-primary">{company.short_name.charAt(0)}</div>
               )}
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-semibold leading-tight text-foreground">{company.name}</h1>
-              <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
-                <div>{roles.length} role(s)</div>
-                <div className="h-4 w-px bg-border/50" />
-                <div>Hiring rounds: <span className="font-medium text-foreground ml-1">{roles.reduce((sum, r) => sum + (r.hiring_rounds?.length || 0), 0)}</span></div>
+
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3">Hiring Process</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
+                Step-by-step breakdown of the recruitment stages, evaluation criteria, and key expectations for {company.name}.
+              </p>
+
+              <div className="flex items-center gap-4 mt-6">
+                <div className="flex items-center gap-2 text-sm font-medium bg-primary/10 text-primary px-3 py-1.5 rounded-full">
+                  <Briefcase className="h-4 w-4" />
+                  {roles.length} Open Roles
+                </div>
+                <div className="flex items-center gap-2 text-sm font-medium bg-muted text-muted-foreground px-3 py-1.5 rounded-full">
+                  <Clock className="h-4 w-4" />
+                  Avg. Process: ~2-3 Weeks
+                </div>
               </div>
-              <div className="mt-3 text-sm text-muted-foreground max-w-2xl">{company.overview_text ? company.overview_text.slice(0, 220) + (company.overview_text.length>220? '…':'') : ''}</div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Main Content */}
+      {roles.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center bg-muted/5 rounded-3xl border border-dashed border-border">
+          <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+            <Briefcase className="h-10 w-10 text-muted-foreground/50" />
+          </div>
+          <h3 className="text-xl font-semibold">No Hiring Data Available</h3>
+          <p className="text-muted-foreground mt-2 max-w-xs mx-auto">
+            Hiring process details are not yet available for this company.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-16">
           {roles.map((role, ri) => (
-            <div key={ri} className="grid grid-cols-1 lg:grid-cols-[72px_1fr] gap-6">
-              <div className="relative">
-                <div className="timeline-line left-6 top-6" />
-                <div className="timeline-node left-3 top-6" aria-hidden />
-              </div>
-
-              <div className="space-y-4">
-                <div className="card-premium p-5 rounded-xl elevation-sm">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="heading-subsection truncate">{role.role_title}</h2>
-                      <div className="mt-2 text-sm text-muted-foreground line-clamp-3">{role.job_description}</div>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                        {role.opportunity_type && <div className="px-2 py-1 bg-muted/10 rounded-full">{role.opportunity_type}</div>}
-                        {role.role_category && <div className="px-2 py-1 bg-muted/10 rounded-full">{role.role_category}</div>}
-                        {role.bonus && <div className="px-2 py-1 bg-muted/10 rounded-full line-clamp-1">{role.bonus}</div>}
-                      </div>
-                    </div>
-
-                    <div className="flex-shrink-0">
-                      <Badge variant="secondary" className="text-sm px-3 py-1 rounded-full">{formatCompensation(role)}</Badge>
-                    </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              key={ri}
+              className="relative"
+            >
+              {/* Role Header */}
+              <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300 relative z-10">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
+                  <div>
+                    <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5 uppercase text-[10px] tracking-widest font-bold px-2 py-0.5">
+                      {role.role_category || "Engineering"}
+                    </Badge>
+                    <h2 className="text-2xl font-bold">{role.role_title}</h2>
                   </div>
+                  <Badge className="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white border-0 px-4 py-1.5 text-sm font-semibold shadow-sm">
+                    {role.ctc_or_stipend || "Competitive Salary"}
+                  </Badge>
                 </div>
 
-                <div className="relative pl-6">
-                  {role.hiring_rounds.map((round, idx) => {
-                    const Icon = roundIcons[round.round_category] || Monitor;
-                    const key = `${ri}-${idx}`;
-                    const isOpen = expandedRound === key;
+                <p className="text-muted-foreground leading-relaxed mb-6 max-w-4xl">
+                  {role.job_description || "Detailed description not available."}
+                </p>
 
-                    return (
+                <div className="flex flex-wrap gap-2">
+                  {role.opportunity_type && (
+                    <Badge variant="secondary" className="px-3 py-1 bg-secondary text-secondary-foreground">
+                      {role.opportunity_type}
+                    </Badge>
+                  )}
+                  {role.bonus && (
+                    <Badge variant="outline" className="px-3 py-1 border-dashed border-primary/40 text-primary/80">
+                      + {role.bonus}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Timeline Connector */}
+              <div className="absolute left-8 md:left-12 top-20 bottom-0 w-0.5 bg-gradient-to-b from-border via-border to-transparent -z-0" />
+
+              {/* Rounds */}
+              <div className="mt-8 space-y-4 pl-4 md:pl-8">
+                {role.hiring_rounds.map((round, idx) => {
+                  const Icon = roundIcons[round.round_category] || Monitor;
+                  const key = `${ri}-${idx}`;
+                  const isOpen = expandedRound === key;
+                  const isLast = idx === role.hiring_rounds.length - 1;
+
+                  return (
+                    <div key={idx} className="relative pl-8 md:pl-12">
+                      {/* Timeline Node */}
+                      <div className="absolute left-0 md:left-3.5 top-6 w-8 h-8 md:w-10 md:h-10 rounded-full bg-background border-4 border-muted flex items-center justify-center z-10 shadow-sm group-hover:border-primary transition-colors">
+                        <span className="text-xs font-bold text-muted-foreground">{idx + 1}</span>
+                      </div>
+
                       <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.06 }}
-                        className="relative"
+                        onClick={() => setExpandedRound(isOpen ? null : key)}
+                        className={`
+                                cursor-pointer rounded-2xl border transition-all duration-300 overflow-hidden bg-card
+                                ${isOpen ? 'border-primary shadow-md ring-1 ring-primary/10' : 'border-border/50 hover:border-primary/30 hover:bg-muted/5'}
+                              `}
                       >
-                        <div className="absolute -left-10 top-4 w-8 h-8 rounded-full bg-card shadow-sm flex items-center justify-center border border-border">
-                          <span className="text-sm text-muted-foreground">{round.round_number}</span>
-                        </div>
-
-                        <button
-                          onClick={() => setExpandedRound(isOpen ? null : key)}
-                          className="w-full text-left card-premium p-4 rounded-lg transition-smooth"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <Icon className="h-5 w-5 text-primary" />
-                              <div>
-                                <div className="font-semibold text-sm">{round.round_name}</div>
-                                <div className="text-xs text-muted-foreground">{round.evaluation_type} · {round.assessment_mode}</div>
+                        <div className="p-5 flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-2.5 rounded-xl ${isOpen ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'}`}>
+                              <Icon className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-base md:text-lg text-foreground">{round.round_name}</div>
+                              <div className="text-xs md:text-sm text-muted-foreground flex items-center gap-2">
+                                <span>{round.evaluation_type}</span>
+                                <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                                <span>{round.assessment_mode}</span>
                               </div>
                             </div>
-                            <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
                           </div>
-                        </button>
+                          <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                        </div>
 
                         <AnimatePresence>
                           {isOpen && (
                             <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="overflow-hidden"
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
                             >
-                              <div className="mt-3 border border-t-0 rounded-b-lg p-4 space-y-4 bg-muted/20">
-                                <div className="flex flex-wrap gap-2">
-                                  {round.skill_sets.map((skill, si) => (
-                                    <Badge key={si} variant="secondary" className="text-sm px-2 py-1 rounded-full" title={skill.skill_set_code}>{skill.skill_set_code}</Badge>
-                                  ))}
-                                </div>
+                              <div className="px-6 pb-6 pt-0 border-t border-border/50 bg-muted/5">
+                                <div className="mt-4 grid gap-4">
+                                  <div>
+                                    <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Focus Areas</div>
+                                    <div className="flex flex-wrap gap-2">
+                                      {round.skill_sets.map((skill, si) => (
+                                        <Badge key={si} variant="outline" className="bg-background text-foreground/80 border-border/60">
+                                          {skill.skill_set_code}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
 
-                                <div className="space-y-2">
-                                  {round.skill_sets.flatMap(s => s.typical_questions.split(";")).map((q, qi) => (
-                                    <div key={qi} className="text-sm bg-card rounded-md border px-3 py-2 italic text-muted-foreground">{q.trim()}</div>
-                                  ))}
+                                  <div>
+                                    <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Typical Questions / Topics</div>
+                                    <div className="space-y-2">
+                                      {round.skill_sets.flatMap(s => s.typical_questions.split(";")).map((q, qi) => (
+                                        <div key={qi} className="flex items-start gap-2.5 text-sm text-foreground/80 bg-background p-3 rounded-lg border border-border/40">
+                                          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                                          <span className="leading-snug">{q.trim()}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </motion.div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            </motion.div>
           ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, X, ChevronsUpDown, Zap, Building2, Briefcase, Code2, Users } from 'lucide-react';
+import { CheckCircle, X, ChevronsUpDown, Zap, Building2, Briefcase, Code2, Users, Plus, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -9,6 +9,7 @@ import { type ComparisonCompany, type ComparisonSkill } from '@/utils/comparison
 import { toast } from '@/components/ui/sonner';
 import { CompanyShort } from "@/data";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CompanyComparison() {
     const [open, setOpen] = useState(false);
@@ -95,66 +96,63 @@ export default function CompanyComparison() {
             setSelectedIds(selectedIds.filter(i => i !== id));
         } else {
             if (selectedIds.length >= 3) {
-                toast.warning("Select up to 3 companies");
+                toast.warning("Select up to 3 companies for best viewing experience");
                 return;
             }
             setSelectedIds([...selectedIds, id]);
         }
     };
 
-    // Calculate common skills for the simplified view
-    const topSkills = Array.from(new Set(
-        comparisonData.flatMap(c => c.skills.slice(0, 5).map(s => s.skillName))
-    )).slice(0, 8); // Take top 8 unique skills from the selected companies
-
     return (
-        <div className="space-y-8 animate-fade-in pb-20 max-w-7xl mx-auto px-4 md:px-8 pt-6">
+        <div className="min-h-screen bg-background animate-fade-in pb-20 pt-6 px-4 md:px-8 max-w-[1600px] mx-auto">
+
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Compare Companies</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Analyze hiring structures and technical requirements side-by-side.
+                    <h1 className="text-4xl font-bold tracking-tight text-foreground">Compare Companies</h1>
+                    <p className="text-lg text-muted-foreground mt-2 max-w-xl">
+                        Select up to 3 companies to analyze their hiring process, tech stack, and innovation focus side-by-side.
                     </p>
                 </div>
 
                 {/* Compact Selector */}
-                <div className="w-full md:w-auto min-w-[300px]">
+                <div className="w-full md:w-auto min-w-[320px]">
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={open}
-                                className="w-full justify-between h-10 border-input bg-background/50 backdrop-blur-sm"
+                                className="w-full justify-between h-12 text-base px-4 border-primary/20 bg-background hover:bg-muted/50 transition-all shadow-sm"
                             >
                                 {selectedIds.length > 0
                                     ? `${selectedIds.length} Companies Selected`
-                                    : "Add company to compare..."}
+                                    : "Select companies..."}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[300px] p-0" align="end">
+                        <PopoverContent className="w-[320px] p-0" align="end">
                             <Command>
-                                <CommandInput placeholder="Search company..." />
+                                <CommandInput placeholder="Search company..." className="h-10" />
                                 <CommandList>
                                     <CommandEmpty>No company found.</CommandEmpty>
-                                    <CommandGroup>
+                                    <CommandGroup heading="Available Companies">
                                         {allCompanies.map((company) => (
                                             <CommandItem
                                                 key={company.company_id}
                                                 value={company.name}
                                                 onSelect={() => toggleSelection(company.company_id)}
+                                                className="cursor-pointer py-2"
                                             >
                                                 <div className={cn(
-                                                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary transition-all",
                                                     selectedIds.includes(company.company_id)
                                                         ? "bg-primary text-primary-foreground"
                                                         : "opacity-50 [&_svg]:invisible"
                                                 )}>
-                                                    <CheckCircle className="h-4 w-4" />
+                                                    <CheckCircle className="h-3 w-3" />
                                                 </div>
-                                                {company.name}
+                                                <span className="font-medium">{company.name}</span>
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>
@@ -162,119 +160,165 @@ export default function CompanyComparison() {
                             </Command>
                         </PopoverContent>
                     </Popover>
+                    <p className="text-xs text-muted-foreground mt-2 text-right">
+                        {selectedIds.length}/3 selected
+                    </p>
                 </div>
             </div>
 
             {loading ? (
-                <div className="h-96 flex flex-col items-center justify-center text-muted-foreground bg-muted/5 rounded-xl border border-border/50">
-                    <Zap className="h-8 w-8 text-primary animate-pulse mb-3" />
-                    <p>Loading comparison data...</p>
+                <div className="h-[500px] flex flex-col items-center justify-center text-muted-foreground bg-muted/5 rounded-3xl border border-border/50">
+                    <Zap className="h-10 w-10 text-primary animate-pulse mb-4" />
+                    <p className="text-lg font-medium">Analyzing data...</p>
                 </div>
             ) : comparisonData.length === 0 ? (
-                <div className="h-96 flex flex-col items-center justify-center text-muted-foreground/60 bg-muted/5 rounded-xl border border-dashed border-border/50">
-                    <Building2 className="h-12 w-12 mb-4 opacity-20" />
-                    <p className="text-lg font-medium text-foreground/80">No Companies Selected</p>
-                    <p className="text-sm mt-1">Select companies from the dropdown to view the comparison table.</p>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="h-[500px] flex flex-col items-center justify-center bg-gradient-to-br from-muted/20 to-background rounded-3xl border border-dashed border-border/60 text-center px-4"
+                >
+                    <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-6">
+                        <Plus className="h-10 w-10 text-primary/40" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">Start Comparison</h2>
+                    <p className="text-muted-foreground max-w-sm mb-8">
+                        Choose companies from the dropdown above to see a detailed breakdown of their differences.
+                    </p>
+                    <Button onClick={() => setOpen(true)} className="px-8 shadow-lg shadow-primary/20">
+                        Add Company
+                    </Button>
+                </motion.div>
             ) : (
-                <div className="border border-border rounded-xl overflow-hidden bg-background shadow-sm">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="border border-border/60 rounded-3xl overflow-hidden bg-background shadow-lg shadow-black/5"
+                >
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
+                        <table className="w-full text-sm text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-border bg-muted/30">
-                                    <th className="p-6 font-semibold min-w-[200px] w-1/4 text-muted-foreground">Feature</th>
+                                <tr className="bg-muted/10">
+                                    <th className="p-6 font-semibold min-w-[200px] w-1/5 text-muted-foreground border-b border-border/50 sticky left-0 bg-background/95 backdrop-blur z-10">
+
+                                    </th>
                                     {comparisonData.map(c => (
-                                        <th key={c.id} className="p-6 font-bold text-foreground min-w-[250px] align-top">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                {c.logo_url ? (
-                                                    <img src={c.logo_url} alt={c.name} className="h-10 w-10 object-contain rounded-md bg-white p-1 shadow-sm" />
-                                                ) : (
-                                                    <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                                        {c.name.charAt(0)}
-                                                    </div>
-                                                )}
+                                        <th key={c.id} className="p-6 min-w-[300px] align-top border-b border-border/50 border-l border-border/30 first:border-l-0">
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex justify-between items-start">
+                                                    {c.logo_url ? (
+                                                        <img src={c.logo_url} alt={c.name} className="h-12 w-12 object-contain rounded-lg bg-white p-1 shadow-sm border border-border/20" />
+                                                    ) : (
+                                                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
+                                                            {c.name.charAt(0)}
+                                                        </div>
+                                                    )}
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                                        onClick={() => toggleSelection(c.id)}
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
                                                 <div>
-                                                    <div className="text-lg leading-tight">{c.name}</div>
-                                                    <Badge variant="secondary" className="mt-1 text-[10px] h-5 font-normal text-muted-foreground">
+                                                    <div className="text-xl font-bold text-foreground">{c.name}</div>
+                                                    <Badge variant="secondary" className="mt-2 font-normal">
                                                         {c.category}
                                                     </Badge>
                                                 </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="ml-auto h-6 w-6 text-muted-foreground hover:text-destructive"
-                                                    onClick={() => toggleSelection(c.id)}
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </Button>
                                             </div>
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border/50">
+                            <tbody className="divide-y divide-border/30">
                                 {/* Section: Business Profile */}
-                                <tr className="bg-muted/5">
-                                    <td className="p-4 font-semibold text-muted-foreground/80 uppercase text-xs tracking-wider" colSpan={comparisonData.length + 1}>
-                                        Business Profile
+                                <tr className="bg-muted/30">
+                                    <td className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground" colSpan={comparisonData.length + 1}>
+                                        Strategic Focus
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="p-6 font-medium text-muted-foreground flex items-center gap-2">
-                                        <Building2 className="h-4 w-4" /> Focus Area
+                                    <td className="p-6 font-medium text-muted-foreground sticky left-0 bg-background border-r border-border/30">
+                                        <div className="flex items-center gap-2">
+                                            <Building2 className="h-4 w-4 text-primary" /> Focus Area
+                                        </div>
                                     </td>
                                     {comparisonData.map(c => (
-                                        <td key={c.id} className="p-6 align-top">
+                                        <td key={c.id} className="p-6 align-top border-l border-border/30">
                                             <p className="font-medium text-foreground">{c.innovation.focusArea}</p>
                                         </td>
                                     ))}
                                 </tr>
                                 <tr>
-                                    <td className="p-6 font-medium text-muted-foreground flex items-center gap-2">
-                                        <Zap className="h-4 w-4" /> Strategic Pillar
+                                    <td className="p-6 font-medium text-muted-foreground sticky left-0 bg-background border-r border-border/30">
+                                        <div className="flex items-center gap-2">
+                                            <Zap className="h-4 w-4 text-primary" /> Key Pillar
+                                        </div>
                                     </td>
                                     {comparisonData.map(c => (
-                                        <td key={c.id} className="p-6 align-top text-muted-foreground">
-                                            {c.innovation.pillar}
+                                        <td key={c.id} className="p-6 align-top border-l border-border/30 text-muted-foreground text-sm leading-relaxed">
+                                            "{c.innovation.pillar}"
                                         </td>
                                     ))}
                                 </tr>
 
                                 {/* Section: Hiring Process */}
-                                <tr className="bg-muted/5">
-                                    <td className="p-4 font-semibold text-muted-foreground/80 uppercase text-xs tracking-wider" colSpan={comparisonData.length + 1}>
-                                        Hiring Process
+                                <tr className="bg-muted/30">
+                                    <td className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground" colSpan={comparisonData.length + 1}>
+                                        Hiring Details
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="p-6 font-medium text-muted-foreground flex items-center gap-2">
-                                        <Briefcase className="h-4 w-4" /> Total Rounds
+                                    <td className="p-6 font-medium text-muted-foreground sticky left-0 bg-background border-r border-border/30">
+                                        <div className="flex items-center gap-2">
+                                            <Briefcase className="h-4 w-4 text-primary" /> Total Rounds
+                                        </div>
                                     </td>
                                     {comparisonData.map(c => (
-                                        <td key={c.id} className="p-6 align-top">
-                                            <Badge variant="outline" className="font-bold text-base px-3 py-1 bg-background">
+                                        <td key={c.id} className="p-6 align-top border-l border-border/30">
+                                            <Badge variant="outline" className="text-base px-3 py-1 border-primary/20 bg-primary/5 text-primary">
                                                 {c.hiringMethod.totalRounds} Rounds
                                             </Badge>
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-6 font-medium text-muted-foreground sticky left-0 bg-background border-r border-border/30">
+                                        <div className="flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-primary" /> Breakdown
+                                        </div>
+                                    </td>
+                                    {comparisonData.map(c => (
+                                        <td key={c.id} className="p-6 align-top border-l border-border/30">
+                                            <div className="space-y-1 text-sm text-muted-foreground">
+                                                {c.hiringMethod.codingRounds > 0 && <div className="flex justify-between"><span>Coding:</span> <span className="font-medium text-foreground">{c.hiringMethod.codingRounds}</span></div>}
+                                                {c.hiringMethod.systemDesignRounds > 0 && <div className="flex justify-between"><span>System Design:</span> <span className="font-medium text-foreground">{c.hiringMethod.systemDesignRounds}</span></div>}
+                                                {c.hiringMethod.hrRounds > 0 && <div className="flex justify-between"><span>HR/Behavioral:</span> <span className="font-medium text-foreground">{c.hiringMethod.hrRounds}</span></div>}
+                                            </div>
                                         </td>
                                     ))}
                                 </tr>
 
 
                                 {/* Section: Technology */}
-                                <tr className="bg-muted/5">
-                                    <td className="p-4 font-semibold text-muted-foreground/80 uppercase text-xs tracking-wider" colSpan={comparisonData.length + 1}>
-                                        Technology
+                                <tr className="bg-muted/30">
+                                    <td className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground" colSpan={comparisonData.length + 1}>
+                                        Tech Stack
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="p-6 font-medium text-muted-foreground flex items-center gap-2">
-                                        <Code2 className="h-4 w-4" /> Tech Stack
+                                    <td className="p-6 font-medium text-muted-foreground sticky left-0 bg-background border-r border-border/30">
+                                        <div className="flex items-center gap-2">
+                                            <Code2 className="h-4 w-4 text-primary" /> Technologies
+                                        </div>
                                     </td>
                                     {comparisonData.map(c => (
-                                        <td key={c.id} className="p-6 align-top">
-                                            <div className="flex flex-wrap gap-1.5">
+                                        <td key={c.id} className="p-6 align-top border-l border-border/30">
+                                            <div className="flex flex-wrap gap-2">
                                                 {c.innovation.techStack.map(tech => (
-                                                    <Badge key={tech} variant="secondary" className="font-normal border-border/50">
+                                                    <Badge key={tech} variant="secondary" className="font-normal bg-background border border-border/50 text-foreground/80">
                                                         {tech}
                                                     </Badge>
                                                 ))}
@@ -282,32 +326,32 @@ export default function CompanyComparison() {
                                         </td>
                                     ))}
                                 </tr>
-                                <tr>
-                                    <td className="p-6 font-medium text-muted-foreground border-b-0">
+                                <tr className="border-b-0">
+                                    <td className="p-6 font-medium text-muted-foreground sticky left-0 bg-background border-r border-border/30 border-b-0">
                                         Top Skills
                                     </td>
                                     {comparisonData.map(c => (
-                                        <td key={c.id} className="p-6 align-top border-b-0">
-                                            <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                                {c.skills.slice(0, 4).map(skill => (
-                                                    <li key={skill.skillName}>
-                                                        <span className="text-foreground">{skill.skillName}</span>
-                                                        <span className="text-xs ml-1 opacity-50">({skill.proficiencyLevel})</span>
-                                                    </li>
+                                        <td key={c.id} className="p-6 align-top border-l border-border/30 border-b-0">
+                                            <div className="space-y-2">
+                                                {c.skills.slice(0, 5).map((skill, i) => (
+                                                    <div key={i} className="flex justify-between items-center text-sm">
+                                                        <span className="text-foreground/90">{skill.skillName}</span>
+                                                        <span className="text-xs text-muted-foreground">{skill.proficiencyLevel}</span>
+                                                    </div>
                                                 ))}
-                                                {c.skills.length > 4 && (
-                                                    <li className="list-none text-xs italic pt-1 text-muted-foreground/70">
-                                                        + {c.skills.length - 4} more
-                                                    </li>
+                                                {c.skills.length > 5 && (
+                                                    <div className="text-xs text-muted-foreground italic pt-2">
+                                                        + {c.skills.length - 5} more
+                                                    </div>
                                                 )}
-                                            </ul>
+                                            </div>
                                         </td>
                                     ))}
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             )}
         </div>
     );

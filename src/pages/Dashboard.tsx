@@ -180,10 +180,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20 space-y-8 animate-fade-in max-w-[1600px] mx-auto px-4 md:px-8 pt-6">
+    <div className="min-h-screen bg-transparent text-foreground pb-20 space-y-8 animate-fade-in max-w-[1600px] mx-auto pt-2">
 
       {/* 1. Compact Executive Header */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-background to-background border border-border/40 p-8 shadow-sm">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-primary/5 border border-border/60 p-8 shadow-sm">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
@@ -201,7 +201,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70"
+              className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground"
             >
               Executive Overview
             </motion.h1>
@@ -219,7 +219,7 @@ export default function Dashboard() {
           {/* Central Search - Compact */}
           <div className="flex-1 w-full md:max-w-xl">
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 via-purple-500/20 to-blue-500/20 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 via-indigo-500/20 to-blue-500/20 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
               <div className="relative bg-background rounded-lg shadow-sm border border-border/50">
                 <SearchBar
                   placeholder="Search companies..."
@@ -227,7 +227,7 @@ export default function Dashboard() {
                   onSelect={(result) => navigate(`/companies/${result.id}`)}
                   onSearchChange={setSearch}
                   value={search}
-                  className="h-12 text-base px-4 bg-transparent border-none focus:ring-0"
+                  className="h-12 text-base px-4 bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -238,23 +238,23 @@ export default function Dashboard() {
       {/* 2. Key Metrics Ribbon - Compact Grid */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Companies", value: counts.total, icon: Building2, color: "text-foreground" },
-          { label: "Marquee", value: counts.marquee, icon: Crown, color: "text-amber-500" },
-          { label: "Enterprise", value: counts.enterprise, icon: Users, color: "text-blue-500" },
-          { label: "High Growth", value: counts.superdream, icon: TrendingUp, color: "text-purple-500" }
+          { label: "Total Companies", value: counts.total, icon: Building2, color: "text-foreground", bg: "bg-foreground/5" },
+          { label: "Marquee", value: counts.marquee, icon: Crown, color: "text-amber-500", bg: "bg-amber-500/10" },
+          { label: "Enterprise", value: counts.enterprise, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { label: "High Growth", value: counts.superdream, icon: TrendingUp, color: "text-purple-500", bg: "bg-purple-500/10" }
         ].map((stat, idx) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + (idx * 0.05) }}
-            className="bg-card/50 backdrop-blur-sm border border-border/50 p-4 rounded-xl flex items-center justify-between hover:bg-card/80 transition-colors group cursor-default shadow-sm"
+            className="bg-card border border-border/50 p-4 rounded-xl flex items-center justify-between hover:shadow-md transition-all group cursor-default"
           >
             <div>
               <div className="text-2xl font-bold tracking-tight">{stat.value}</div>
               <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-0.5">{stat.label}</div>
             </div>
-            <div className={`p-2 rounded-lg bg-background/50 ${stat.color} group-hover:scale-110 transition-transform`}>
+            <div className={`p-2.5 rounded-lg ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
               <stat.icon className="h-5 w-5" />
             </div>
           </motion.div>
@@ -288,7 +288,8 @@ export default function Dashboard() {
                   onClick={() => navigate(`/companies?category=${tier.key}`)}
                   className={`
                                         relative overflow-hidden cursor-pointer group rounded-xl border p-5
-                                        ${tier.bg} ${tier.border} hover:shadow-md transition-all duration-300
+                                        bg-card hover:shadow-lg transition-all duration-300
+                                        ${tier.border}
                                     `}
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${tier.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
@@ -296,21 +297,21 @@ export default function Dashboard() {
                   <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg bg-background/60 backdrop-blur shadow-sm ${tier.color}`}>
+                        <div className={`p-2.5 rounded-lg bg-background shadow-sm border border-border/50 ${tier.color}`}>
                           <tier.icon className="h-5 w-5" />
                         </div>
                         <div>
                           <h3 className={`text-xl font-bold ${tier.color} leading-none`}>{tier.range}</h3>
-                          <p className="text-xs text-muted-foreground mt-1 font-medium">{tier.badge}</p>
+                          <p className="text-xs text-muted-foreground mt-1.5 font-medium">{tier.badge}</p>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-3">
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-4">
                         {tier.description}
                       </p>
-                      <div className="pt-3 border-t border-border/10 flex items-center justify-between">
+                      <div className="pt-3 border-t border-border/40 flex items-center justify-between">
                         <span className="text-xs font-semibold flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
                           {count} Companies
                         </span>
@@ -332,7 +333,7 @@ export default function Dashboard() {
                 <Bell className="h-4 w-4 text-primary" />
                 Live Updates
               </h3>
-              <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-primary/20">
+              <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                 {jobNews.length} New
               </Badge>
             </div>

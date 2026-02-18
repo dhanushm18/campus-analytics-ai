@@ -2,7 +2,12 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -14,9 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        // Use a single, consistent premium font across the app
-        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
-        heading: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -62,21 +66,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        metric: {
-          DEFAULT: "hsl(var(--metric))",
-          foreground: "hsl(var(--metric-foreground))",
-        },
-        badge: {
-          marquee: "hsl(var(--badge-marquee))",
-          superdream: "hsl(var(--badge-superdream))",
-          dream: "hsl(var(--badge-dream))",
-          regular: "hsl(var(--badge-regular))",
-        },
-        tier: {
-          1: "hsl(var(--tier-1))",
-          2: "hsl(var(--tier-2))",
-          3: "hsl(var(--tier-3))",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -93,7 +82,11 @@ export default {
           to: { height: "0" },
         },
         "fade-in": {
-          from: { opacity: "0", transform: "translateY(8px)" },
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
       },
@@ -101,8 +94,10 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.4s ease-out forwards",
+        "slide-up": "slide-up 0.5s ease-out forwards",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
