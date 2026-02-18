@@ -78,7 +78,7 @@ export default function Companies() {
     // If it doesn't, you might need to fetch it or ignore this filter for now.
     // For this redesign, I'll assume basic search filtering is primary.
 
-    return matchesSearch;
+    return matchesSearch && matchesCategory;
   });
 
   const pagedCompanies = filteredCompanies.slice(0, page * ITEMS_PER_PAGE);
@@ -141,14 +141,16 @@ export default function Companies() {
 
         {/* Filters & Sort */}
         <div className="flex items-center gap-3 w-full md:w-auto">
+          {/* 
           <Button
             variant="outline"
             size="sm"
             className="h-10 gap-2 border-border/50 bg-background font-medium hover:bg-muted/50 hidden md:flex"
           >
             <ListFilter className="h-4 w-4" />
-            Waitlist
+            Sort
           </Button>
+           */}
 
           <Select value={category} onValueChange={(v) => { setCategory(v); setPage(1); }}>
             <SelectTrigger className="w-full md:w-[180px] h-10 border-border/50 bg-background font-medium">
@@ -163,6 +165,7 @@ export default function Companies() {
               <SelectItem value="superdream">Super Dream</SelectItem>
               <SelectItem value="dream">Dream</SelectItem>
               <SelectItem value="regular">Regular</SelectItem>
+              <SelectItem value="enterprise">Enterprise</SelectItem>
             </SelectContent>
           </Select>
         </div>
